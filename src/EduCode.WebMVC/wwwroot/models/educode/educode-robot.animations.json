@@ -1,0 +1,175 @@
+{
+  "version": "11.2.2-perf2",
+  "model": "educode-robot-base.glb",
+  "master_clip": null,
+  "clip_count": 8,
+  "playback_strategy": "split_preoptimized_clips_lazy",
+  "fps": 24.0,
+  "source_frame_start": 1,
+  "source_frame_end": 1269,
+  "duration_seconds": 52.833333333333336,
+  "ranges": {
+    "idle": {
+      "source_start": 1,
+      "source_end": 169,
+      "loop": true,
+      "web_start_frame": 0,
+      "web_end_frame": 168,
+      "start_seconds": 0.0,
+      "end_seconds": 7.0,
+      "duration_seconds": 7.041666666666667
+    },
+    "asentir": {
+      "source_start": 170,
+      "source_end": 294,
+      "loop": false,
+      "web_start_frame": 169,
+      "web_end_frame": 293,
+      "start_seconds": 7.041666666666667,
+      "end_seconds": 12.208333333333334,
+      "duration_seconds": 5.208333333333333
+    },
+    "negar": {
+      "source_start": 295,
+      "source_end": 419,
+      "loop": false,
+      "web_start_frame": 294,
+      "web_end_frame": 418,
+      "start_seconds": 12.25,
+      "end_seconds": 17.416666666666668,
+      "duration_seconds": 5.208333333333333
+    },
+    "pensar": {
+      "source_start": 420,
+      "source_end": 593,
+      "loop": false,
+      "web_start_frame": 419,
+      "web_end_frame": 592,
+      "start_seconds": 17.458333333333332,
+      "end_seconds": 24.666666666666668,
+      "duration_seconds": 7.25
+    },
+    "pulgar_arriba": {
+      "source_start": 615,
+      "source_end": 726,
+      "loop": false,
+      "web_start_frame": 614,
+      "web_end_frame": 725,
+      "start_seconds": 25.583333333333332,
+      "end_seconds": 30.208333333333332,
+      "duration_seconds": 4.666666666666667
+    },
+    "senalar": {
+      "source_start": 750,
+      "source_end": 861,
+      "loop": false,
+      "web_start_frame": 749,
+      "web_end_frame": 860,
+      "start_seconds": 31.208333333333332,
+      "end_seconds": 35.833333333333336,
+      "duration_seconds": 4.666666666666667
+    },
+    "celebrar": {
+      "source_start": 885,
+      "source_end": 1050,
+      "loop": false,
+      "web_start_frame": 884,
+      "web_end_frame": 1049,
+      "start_seconds": 36.833333333333336,
+      "end_seconds": 43.708333333333336,
+      "duration_seconds": 6.916666666666667
+    },
+    "brazos_cruzados": {
+      "source_start": 1080,
+      "source_end": 1269,
+      "loop": true,
+      "web_start_frame": 1079,
+      "web_end_frame": 1268,
+      "start_seconds": 44.958333333333336,
+      "end_seconds": 52.833333333333336,
+      "duration_seconds": 7.916666666666667
+    }
+  },
+  "clips": {
+    "idle": {
+      "file": "animations/edu02-idle.glb",
+      "loop": true,
+      "source_start": 1,
+      "source_end": 169,
+      "duration_seconds": 7.0,
+      "keys_before": 105456,
+      "keys_after": 81280,
+      "size_bytes": 805356
+    },
+    "asentir": {
+      "file": "animations/edu02-asentir.glb",
+      "loop": false,
+      "source_start": 170,
+      "source_end": 294,
+      "duration_seconds": 5.166666507720947,
+      "keys_before": 78000,
+      "keys_after": 57527,
+      "size_bytes": 622528
+    },
+    "negar": {
+      "file": "animations/edu02-negar.glb",
+      "loop": false,
+      "source_start": 295,
+      "source_end": 419,
+      "duration_seconds": 5.166666030883789,
+      "keys_before": 78000,
+      "keys_after": 57518,
+      "size_bytes": 613448
+    },
+    "pensar": {
+      "file": "animations/edu02-pensar.glb",
+      "loop": false,
+      "source_start": 420,
+      "source_end": 593,
+      "duration_seconds": 7.208332061767578,
+      "keys_before": 108576,
+      "keys_after": 69196,
+      "size_bytes": 668376
+    },
+    "pulgar_arriba": {
+      "file": "animations/edu02-pulgar-arriba.glb",
+      "loop": false,
+      "source_start": 615,
+      "source_end": 726,
+      "duration_seconds": 4.625,
+      "keys_before": 69888,
+      "keys_after": 44162,
+      "size_bytes": 457660
+    },
+    "senalar": {
+      "file": "animations/edu02-senalar.glb",
+      "loop": false,
+      "source_start": 750,
+      "source_end": 861,
+      "duration_seconds": 4.624998092651367,
+      "keys_before": 69888,
+      "keys_after": 44415,
+      "size_bytes": 462536
+    },
+    "celebrar": {
+      "file": "animations/edu02-celebrar.glb",
+      "loop": false,
+      "source_start": 885,
+      "source_end": 1050,
+      "duration_seconds": 6.875,
+      "keys_before": 103584,
+      "keys_after": 69494,
+      "size_bytes": 737592
+    },
+    "brazos_cruzados": {
+      "file": "animations/edu02-brazos-cruzados.glb",
+      "loop": true,
+      "source_start": 1080,
+      "source_end": 1269,
+      "duration_seconds": 7.875,
+      "keys_before": 118560,
+      "keys_after": 72990,
+      "size_bytes": 730528
+    }
+  }
+}

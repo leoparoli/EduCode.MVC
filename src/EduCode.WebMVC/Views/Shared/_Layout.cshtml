@@ -1,0 +1,125 @@
+@{
+    string? token = Context.Session.GetString("AccessToken");
+    string rol = Context.Session.GetString("Rol") ?? "";
+    string nombre = Context.Session.GetString("NombreCompleto") ?? "";
+    string nombreUsuario = Context.Session.GetString("NombreUsuario") ?? "";
+    string avatarClave = Context.Session.GetString("AvatarClave") ?? "codigo";
+    string fotoPerfilRuta = Context.Session.GetString("FotoPerfilRuta") ?? "";
+    bool autenticado = !string.IsNullOrWhiteSpace(token);
+    bool admin = rol.Equals("Administrador", StringComparison.OrdinalIgnoreCase);
+    bool docente = rol.Equals("Docente", StringComparison.OrdinalIgnoreCase);
+    bool alumno = rol.Equals("Alumno", StringComparison.OrdinalIgnoreCase);
+    string tituloPerfil = admin ? "Personalizar cuenta administrativa" : "Editar cuenta";
+    string tituloPagina = ViewData["Title"]?.ToString() ?? "EduCode";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="EduCode: práctica progresiva de Programación 1 con evaluación automática, Tutor IA contextual, gamificación y seguimiento personal." />
+    <title>@tituloPagina</title>
+    <link rel="icon" type="image/svg+xml" href="~/img/educode-favicon.svg" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="@(autenticado ? "app-shell" : "public-shell")">
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="EduCode, ir al inicio">
+                <span class="brand-mark">&lt;/&gt;</span>
+                <span><strong>EduCode</strong><small>Programación 1</small></span>
+            </a>
+            <button class="nav-toggle" type="button" aria-label="Abrir navegación" data-nav-toggle aria-expanded="false">☰</button>
+            <nav class="main-nav" data-nav>
+                @if (autenticado)
+                {
+                    @if (alumno)
+                    {
+                        <a asp-controller="Alumno" asp-action="Dashboard">Panel</a>
+                        <a asp-controller="Tutor" asp-action="Index">Tutor IA</a>
+                        <a asp-controller="Temas" asp-action="Index">Recorrido</a>
+                        <a asp-controller="Comunidad" asp-action="Index">Ranking</a>
+                    }
+                    @if (docente)
+                    {
+                        <a asp-controller="Docente" asp-action="Index">Mirada docente</a>
+                        <a asp-controller="Docente" asp-action="Propuestas">Propuestas</a>
+                        <a asp-controller="Temas" asp-action="Index">Catálogo</a>
+                    }
+                    @if (admin)
+                    {
+                        <a asp-controller="Administracion" asp-action="Index">Administración</a>
+                    }
+                    <div class="user-menu">
+                        <a class="user-profile-link" asp-controller="Perfil" asp-action="Index" title="@tituloPerfil">
+                            <span class="avatar avatar-theme-@avatarClave">
+                                @if (!string.IsNullOrWhiteSpace(fotoPerfilRuta))
+                                {
+                                    <img src="@fotoPerfilRuta" alt="Foto de perfil de @nombre" />
+                                }
+                                else
+                                {
+                                    @AvatarUi.Icono(avatarClave)
+                                }
+                            </span>
+                            <span class="user-copy">
+                                <strong>@nombre</strong>
+                                <small>@(string.IsNullOrWhiteSpace(nombreUsuario) ? rol : $"@{nombreUsuario} · {rol}")</small>
+                            </span>
+                            <span class="edit-profile-hint" aria-hidden="true">@(admin ? "Cuenta" : "Editar")</span>
+                        </a>
+                        <form asp-controller="Auth" asp-action="Logout" method="post">
+                            <button class="link-button" type="submit">Salir</button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index">Inicio</a>
+                    <a asp-controller="Home" asp-action="AcercaDe">El proyecto</a>
+                    <a class="nav-login" asp-controller="Auth" asp-action="Login">Ingresar</a>
+                    <a class="button button-sm nav-register-button" asp-controller="Auth" asp-action="Registro">Crear cuenta</a>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <partial name="_Alerts" />
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <span class="brand-mark brand-mark-small">&lt;/&gt;</span>
+                <div><strong>EduCode</strong><p>Aprender programando, comprender antes de avanzar.</p></div>
+            </div>
+            <div><strong>Proyecto académico</strong><p>Desarrollado a partir de la experiencia de ayudantía en Programación 1.</p></div>
+            <div class="footer-author"><span>Diseño y desarrollo</span><strong>Leonardo Paroli de los Santos</strong><small>Proyecto personal · 2026</small></div>
+        </div>
+    </footer>
+
+    <div class="request-loader" data-request-loader hidden role="status" aria-live="assertive" aria-label="Procesando solicitud">
+        <div class="request-loader-card">
+            <div class="code-loader" aria-hidden="true">
+                <div class="code-loader-bar"><span></span><span></span><span></span></div>
+                <div class="code-loader-body">
+                    <span class="code-token token-left">{</span>
+                    <div class="code-loader-logo">&lt;/&gt;</div>
+                    <span class="code-token token-right">}</span>
+                    <div class="code-loader-lines">
+                        <i></i><i></i><i></i>
+                    </div>
+                </div>
+            </div>
+            <strong>EduCode está trabajando</strong>
+            <p data-loader-message>Procesando tu solicitud…</p>
+            <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>
+    </div>
+    <script src="~/js/educode-robot-bootstrap.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/educode-robot.js" asp-append-version="true" data-educode-robot-module></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

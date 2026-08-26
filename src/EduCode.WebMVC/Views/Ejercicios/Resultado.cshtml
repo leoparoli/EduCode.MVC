@@ -1,0 +1,288 @@
+@model ResultadoViewModel
+@{
+    ViewData["Title"] = "Resultado";
+    bool aprobado = Model.Resultado.EjercicioAprobado;
+    ViewData["EduCodeRobotOutcome"] = aprobado ? "approved" : "retry";
+    bool feedbackPendiente = Model.Resultado.FeedbackPersonalizadoPendiente;
+    bool feedbackDisponible = Model.Resultado.FeedbackPersonalizadoDisponible;
+    string titulo = aprobado
+        ? "¡Ejercicio aprobado!"
+        : Model.Resultado.PuntajeMostrado >= 70
+            ? "Estás muy cerca"
+            : Model.Resultado.PuntajeMostrado >= 45
+                ? "Hay una buena base"
+                : "Revisemos el enfoque";
+    string estadoVisible = Model.Resultado.Estado
+        .Replace("ParcialmenteCorrecto", "Parcialmente correcto");
+    string ctaNavegacion = Model.HaySiguienteEjercicioEnTema
+        ? "Ir al próximo ejercicio"
+        : "Explorar más temas";
+
+    ViewData["EduCodeRobotContext"] = "result";
+    ViewData["EduCodeRobotInitialAnimation"] = aprobado ? "celebrar" : "idle";}
+
+<section class="result-hero @(aprobado ? "approved" : "retry")">
+    <div class="container result-hero-grid">
+        <div>
+            <span class="eyebrow light">INTENTO #@Model.Resultado.NumeroIntento · EVALUACIÓN LOCAL</span>
+            <h1>@titulo</h1>
+            <p>@Model.Resultado.Resumen</p>
+
+            @if (!aprobado && !string.IsNullOrWhiteSpace(Model.Resultado.MotivoNoAprobacion))
+            {
+                <div class="approval-note">
+                    <strong>Para aprobar:</strong> @Model.Resultado.MotivoNoAprobacion
+                </div>
+            }
+        </div>
+
+        <div class="score-circle">
+            <strong>@Model.Resultado.PuntajeMostrado</strong>
+            <span>/ 100</span>
+            <small>@estadoVisible</small>
+        </div>
+    </div>
+</section>
+
+@if (Model.Resultado.NuevosLogros.Count > 0)
+{
+    <section class="achievement-celebration" data-achievement-celebration hidden>
+        <div class="achievement-celebration-backdrop" data-achievement-close></div>
+        <div class="achievement-celebration-dialog">
+            <button type="button" class="achievement-celebration-close" data-achievement-close aria-label="Cerrar celebración">×</button>
+            <div class="achievement-celebration-badge">✨</div>
+            <span class="eyebrow">NUEVA INSIGNIA DESBLOQUEADA</span>
+            <h2>¡Seguís avanzando!</h2>
+            <p>Tu progreso acaba de sumar una nueva señal de crecimiento.</p>
+            <div class="achievement-celebration-list">
+                @foreach (LogroDesbloqueadoResponse logro in Model.Resultado.NuevosLogros)
+                {
+                    <article>
+                        <span>@logro.Icono</span>
+                        <div>
+                            <strong>@logro.Nombre</strong>
+                            <p>@logro.Descripcion</p>
+                        </div>
+                    </article>
+                }
+            </div>
+            <div class="achievement-celebration-actions">
+                <a class="button button-light" asp-controller="Comunidad" asp-action="Index">Ver mi vitrina →</a>
+                <button type="button" class="button button-outline" data-achievement-close>Seguir viendo resultado</button>
+            </div>
+        </div>
+    </section>
+}
+
+<section class="section result-section-v25">
+    <div class="container result-grid">
+        <div class="feedback-column">
+            <article class="feedback-section test-summary">
+                <div class="feedback-heading">
+                    <span>▶</span>
+                    <div>
+                        <h2>Pruebas ejecutadas</h2>
+                        <p>@Model.Resultado.CasosPruebaSuperados de @Model.Resultado.TotalCasosPrueba casos superados.</p>
+                    </div>
+                </div>
+
+                <div class="test-results-list compact-tests">
+                    @foreach (ResultadoCasoPruebaResponse caso in Model.Resultado.ResultadosCasosPrueba)
+                    {
+                        <div class="test-result @(caso.Superado ? "passed" : "failed")">
+                            <span>@(caso.Superado ? "✓" : "×")</span>
+                            <div>
+                                <strong>@caso.Nombre</strong>
+                                <p>@caso.Mensaje</p>
+                                @if (!caso.EsOculto)
+                                {
+                                    <small>Esperado: @caso.SalidaEsperada · Obtenido: @caso.SalidaObtenida</small>
+                                }
+                                else
+                                {
+                                    <small>Caso oculto · resultado protegido</small>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </article>
+
+            <article class="feedback-section diagnosis-card">
+                <div class="feedback-heading">
+                    <span>✓</span>
+                    <div>
+                        <h2>Diagnóstico</h2>
+                        <p>Qué mantener y qué revisar en el próximo intento.</p>
+                    </div>
+                </div>
+
+                <div class="diagnosis-grid">
+                    <div>
+                        <h3>Está bien</h3>
+                        <ul>
+                            @foreach (string item in Model.Resultado.AspectosCorrectos)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Próximo paso</h3>
+                        <ul>
+                            @foreach (string item in Model.Resultado.AspectosAMejorar)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Resultado.Pista))
+            {
+                <article class="feedback-section hint compact-feedback-card">
+                    <div class="feedback-heading">
+                        <span>✦</span>
+                        <div>
+                            <h2>Pista sugerida</h2>
+                            <p>@Model.Resultado.Pista</p>
+                        </div>
+                    </div>
+                </article>
+            }
+
+            <article class="feedback-section ai-feedback-card @(feedbackDisponible ? "available" : "pending")"
+                     data-feedback-poll="@feedbackPendiente.ToString().ToLowerInvariant()"
+                     data-feedback-url="@Url.Action("EstadoFeedback", "Ejercicios", new { intentoId = Model.Resultado.IntentoId })">
+                <div class="feedback-heading">
+                    <span>@(feedbackDisponible ? "✦" : "…")</span>
+                    <div>
+                        <h2>@(feedbackDisponible ? "Explicación del tutor IA" : "El tutor IA está preparando una explicación")</h2>
+                        <p data-feedback-status>
+                            @if (feedbackDisponible)
+                            {
+                                <text>Disponible como orientación complementaria. Sirve para acompañar el aprendizaje y no modifica la nota.</text>
+                            }
+                            else
+                            {
+                                <text>La nota y el progreso ya están registrados. Podés continuar sin esperar esta explicación.</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            @if (Model.Resultado.HallazgosTecnicos.Count > 0)
+            {
+                <details class="result-details">
+                    <summary>Ver hallazgos técnicos</summary>
+                    <ul>
+                        @foreach (HallazgoTecnicoResponse hallazgo in Model.Resultado.HallazgosTecnicos)
+                        {
+                            <li><strong>@hallazgo.Codigo:</strong> @hallazgo.Descripcion</li>
+                        }
+                    </ul>
+                </details>
+            }
+        </div>
+
+        <aside class="result-aside">
+            <article class="panel result-robot-card">
+                <partial name="_EduCodeRobot" />
+            </article>
+
+            <article class="panel result-summary-panel">
+                <span class="eyebrow">RESUMEN</span>
+                <h2>Tu evaluación</h2>
+                <div class="result-summary-row">
+                    <span>Puntaje exacto</span>
+                    <strong>@Model.Resultado.PuntajeExacto.ToString("0.00")</strong>
+                </div>
+                <div class="result-summary-row">
+                    <span>Casos superados</span>
+                    <strong>@Model.Resultado.CasosPruebaSuperados / @Model.Resultado.TotalCasosPrueba</strong>
+                </div>
+                <div class="result-summary-row">
+                    <span>Decisión</span>
+                    <strong>@(aprobado ? "Aprobado" : "Nuevo intento")</strong>
+                </div>
+                <p class="local-engine-caption">La nota surge del motor local. La IA actúa únicamente como tutora.</p>
+
+                <details class="criteria-details result-criteria-details">
+                    <summary>Ver rúbrica completa</summary>
+                    <div class="criteria-results">
+                        @foreach (ResultadoCriterioResponse criterio in Model.Resultado.Criterios)
+                        {
+                            bool criterioOk = criterio.Obligatorio
+                                ? criterio.CumplimientoObligatorioAlcanzado
+                                : criterio.PorcentajeCumplimiento >= 70;
+
+                            <div>
+                                <span class="criterion-state @(criterioOk ? "ok" : "no")">@(criterioOk ? "✓" : "×")</span>
+                                <div>
+                                    <strong>@criterio.Descripcion</strong>
+                                    <div class="criterion-progress">
+                                        <span style="width:@criterio.PorcentajeCumplimiento%"></span>
+                                    </div>
+                                    <div class="criterion-meta">
+                                        <small>@criterio.PorcentajeCumplimiento% de cumplimiento</small>
+                                        @if (criterio.Obligatorio)
+                                        {
+                                            <small>Obligatorio · mínimo @criterio.PorcentajeMinimoObligatorio%</small>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(criterio.Evidencia))
+                                    {
+                                        <p class="criterion-evidence"><strong>Evidencia:</strong> @criterio.Evidencia</p>
+                                    }
+                                    <p>@criterio.Observacion</p>
+                                </div>
+                                <div class="criterion-score">
+                                    <strong>@criterio.PuntajeObtenido.ToString("0.00")</strong>
+                                    <small>/ @criterio.PesoMaximo.ToString("0.##") pts</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="version-note">Rúbrica @Model.Resultado.VersionRubrica · Motor @Model.Resultado.VersionMotorPuntaje</div>
+                </details>
+            </article>
+
+            <div class="result-actions">
+                <a class="button button-block" asp-action="Detalle" asp-route-id="@Model.EjercicioId">
+                    @(aprobado ? "Revisar ejercicio" : "Intentar nuevamente")
+                </a>
+
+                @if (feedbackPendiente)
+                {
+                    <form asp-action="ReintentarCorreccion" method="post">
+                        <input type="hidden" name="intentoId" value="@Model.Resultado.IntentoId" />
+                        <input type="hidden" name="ejercicioId" value="@Model.EjercicioId" />
+                        <button class="button button-outline button-block" type="submit">Reintentar explicación IA</button>
+                    </form>
+                }
+
+                @if (Model.HaySiguienteEjercicioEnTema && Model.SiguienteEjercicioId.HasValue)
+                {
+                    <a class="button button-outline button-block"
+                       asp-action="Detalle"
+                       asp-route-id="@Model.SiguienteEjercicioId">
+                        @ctaNavegacion
+                    </a>
+                }
+                else
+                {
+                    <a class="button button-outline button-block"
+                       asp-controller="Temas"
+                       asp-action="Index">
+                        @ctaNavegacion
+                    </a>
+                }
+
+                <a class="button button-outline button-block" asp-action="Historial" asp-route-id="@Model.EjercicioId">Comparar intentos</a>
+                <a class="text-link centered-link" asp-controller="Temas" asp-action="Index">Volver al recorrido</a>
+            </div>
+        </aside>
+    </div>
+</section>

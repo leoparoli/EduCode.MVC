@@ -1,0 +1,168 @@
+@model TutorViewModel
+@{
+    ViewData["Title"] = "Tutor IA";
+    string primerNombre = Model.NombreAlumno.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "Estudiante";
+    string contador = Model.Estado.LimiteDiario <= 0
+        ? "Uso disponible"
+        : $"{Model.Estado.ConsultasRestantes} de {Model.Estado.LimiteDiario} consultas disponibles";
+    bool disponible = Model.Estado.Habilitado &&
+        (Model.Estado.LimiteDiario <= 0 || Model.Estado.ConsultasRestantes > 0);
+
+    ViewData["EduCodeRobotContext"] = "tutor";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";
+}
+
+<section class="tutor-hero">
+    <div class="container tutor-hero-grid">
+        <div>
+            <span class="eyebrow light">ACOMPAÑAMIENTO ACADÉMICO</span>
+            <h1>Tu Tutor IA de Programación 1</h1>
+            <p>
+                Consultá conceptos del curso, compará alternativas y comprendé
+                mejor cada decisión antes de volver al ejercicio.
+            </p>
+        </div>
+        <div class="tutor-quota" aria-label="Estado de consultas diarias">
+            <span class="tutor-quota-icon" aria-hidden="true">✦</span>
+            <div>
+                <small>DISPONIBILIDAD DE HOY</small>
+                <strong data-tutor-quota>@contador</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="tutor-section">
+    <div class="container tutor-layout">
+        <section class="tutor-chat-card" aria-labelledby="titulo-chat">
+            <header class="tutor-chat-header">
+                <div class="tutor-identity">
+                    <span class="tutor-avatar" aria-hidden="true">&lt;/&gt;</span>
+                    <div>
+                        <h2 id="titulo-chat">Tutor EduCode</h2>
+                        <span><i></i> Especializado en los contenidos del curso</span>
+                    </div>
+                </div>
+                <button class="tutor-clear" type="button" data-tutor-clear>
+                    Nueva conversación
+                </button>
+            </header>
+
+            <div class="tutor-messages" data-tutor-messages aria-live="polite">
+                <article class="tutor-message tutor-message-assistant tutor-message-welcome">
+                    <div class="tutor-message-avatar" aria-hidden="true">E</div>
+                    <div class="tutor-message-body">
+                        <div class="tutor-message-meta">
+                            <strong>Tutor EduCode</strong>
+                            <span>Ahora</span>
+                        </div>
+                        <div class="tutor-message-content">
+                            <p>
+                                Hola, @primerNombre. Puedo ayudarte a comprender los
+                                temas de Programación 1 con explicaciones y ejemplos
+                                pequeños en JavaScript.
+                            </p>
+                            <p>
+                                No voy a entregarte soluciones completas ni inventar ejercicios
+                                paralelos. Voy a guiarte con pistas y redirigirte al recorrido de EduCode.
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="tutor-suggestions" data-tutor-suggestions>
+                <span>Podés comenzar con una de estas consultas:</span>
+                <div>
+                    @foreach (string pregunta in Model.PreguntasSugeridas)
+                    {
+                        <button type="button" data-tutor-suggestion>@pregunta</button>
+                    }
+                </div>
+            </div>
+
+            <form class="tutor-form"
+                  asp-controller="Tutor"
+                  asp-action="Consultar"
+                  method="post"
+                  data-tutor-form
+                  data-max-length="@Model.Estado.MaximoCaracteresConsulta"
+                  data-tutor-enabled="@Model.Estado.Habilitado.ToString().ToLowerInvariant()"
+                  data-tutor-user-id="@Model.UsuarioId"
+                  data-quota-limit="@Model.Estado.LimiteDiario"
+                  data-quota-remaining="@Model.Estado.ConsultasRestantes">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="HistorialJson" value="[]" data-tutor-history />
+                <label for="tutorQuestion" class="sr-only">Consulta para el Tutor IA</label>
+                <div class="tutor-composer">
+                    <textarea id="tutorQuestion"
+                              name="Consulta"
+                              rows="3"
+                              maxlength="@Model.Estado.MaximoCaracteresConsulta"
+                              placeholder="Ej.: ¿Cómo puedo verificar si un texto contiene un guion?"
+                              data-tutor-input
+                              disabled="@(!disponible)"></textarea>
+                    <div class="tutor-composer-footer">
+                        <span data-tutor-counter>0 / @Model.Estado.MaximoCaracteresConsulta</span>
+                        <button class="button tutor-send"
+                                type="submit"
+                                data-tutor-send
+                                disabled="@(!disponible)">
+                            Consultar <span aria-hidden="true">→</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <p class="tutor-disclaimer">
+                <span aria-hidden="true">ⓘ</span>
+                El tutor puede equivocarse. Probá los ejemplos, analizá el resultado
+                y contrastalo con los contenidos del curso.
+            </p>
+        </section>
+
+        <aside class="tutor-sidebar">
+            <section class="tutor-side-card tutor-robot-card">
+                <partial name="_EduCodeRobot" />
+            </section>
+
+            <section class="tutor-side-card tutor-scope-card">
+                <span class="eyebrow">ALCANCE CONTROLADO</span>
+                <h2>Un tutor enfocado</h2>
+                <p>
+                    El tutor revisa primero si la consulta pertenece a Programación 1.
+                    Las preguntas fuera del recorrido no descuentan consultas de tu límite diario.
+                </p>
+                <ul class="tutor-scope-list">
+                    @foreach (string tema in Model.Estado.TemasHabilitados)
+                    {
+                        string nombreTema = tema.Split(':')[0];
+                        <li><span>✓</span>@nombreTema</li>
+                    }
+                </ul>
+            </section>
+
+            <section class="tutor-side-card tutor-how-card">
+                <span class="eyebrow">MEJORES CONSULTAS</span>
+                <h2>Cómo aprovecharlo</h2>
+                <ol>
+                    <li><span>1</span><p>Mencioná el concepto que estás trabajando.</p></li>
+                    <li><span>2</span><p>Contá qué esperabas que ocurriera.</p></li>
+                    <li><span>3</span><p>Incluí un fragmento pequeño cuando sea necesario.</p></li>
+                </ol>
+            </section>
+
+            <a class="tutor-back-card" asp-controller="Temas" asp-action="Index">
+                <span>
+                    <small>VOLVER A LA PRÁCTICA</small>
+                    <strong>Explorar los temas</strong>
+                </span>
+                <b aria-hidden="true">→</b>
+            </a>
+        </aside>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/tutor.js" asp-append-version="true"></script>
+}

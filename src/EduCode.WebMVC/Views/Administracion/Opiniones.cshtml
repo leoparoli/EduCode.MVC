@@ -1,0 +1,91 @@
+@model AdminOpinionesViewModel
+@{
+    ViewData["Title"] = "Opiniones recibidas";
+}
+
+<section class="admin-hero feedback-admin-hero">
+    <div class="container">
+        <div>
+            <span class="eyebrow light">MEJORA CONTINUA</span>
+            <h1>Opiniones recibidas</h1>
+            <p>Revisá la experiencia de los usuarios y convertí el feedback en decisiones concretas.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="button button-light" asp-action="Index">Volver al panel</a>
+        </div>
+    </div>
+</section>
+
+<section class="section admin-feedback-section">
+    <div class="container">
+        <div class="stats-grid admin-feedback-stats">
+            <article class="stat-card"><small>TOTAL</small><strong>@Model.Opiniones.Count</strong><p>Opiniones registradas.</p></article>
+            <article class="stat-card"><small>PENDIENTES</small><strong>@Model.Pendientes</strong><p>Esperando una primera revisión.</p></article>
+            <article class="stat-card"><small>CONSIDERADAS</small><strong>@Model.Consideradas</strong><p>Vinculadas a futuras mejoras.</p></article>
+            <article class="stat-card"><small>PROMEDIO</small><strong>@Model.Promedio.ToString("0.0")</strong><p>Calificación sobre 5 estrellas.</p></article>
+        </div>
+
+        @if (Model.Opiniones.Count == 0)
+        {
+            <section class="panel empty-admin-feedback">
+                <span>💬</span>
+                <h2>Todavía no hay opiniones.</h2>
+                <p>Cuando los usuarios compartan su experiencia, aparecerá aquí.</p>
+            </section>
+        }
+        else
+        {
+            <div class="admin-opinions-grid">
+                @foreach (OpinionUsuarioResponse opinion in Model.Opiniones)
+                {
+                    <article class="admin-opinion-card state-@opinion.Estado">
+                        <header>
+                            <div class="admin-opinion-user">
+                                <span class="avatar avatar-theme-@opinion.AvatarClave">
+                                    @if (!string.IsNullOrWhiteSpace(opinion.FotoPerfilRuta))
+                                    {
+                                        <img src="@opinion.FotoPerfilRuta" alt="Foto de @opinion.NombreVisible" />
+                                    }
+                                    else
+                                    {
+                                        @AvatarUi.Icono(opinion.AvatarClave)
+                                    }
+                                </span>
+                                <div>
+                                    <strong>@(string.IsNullOrWhiteSpace(opinion.NombreVisible) ? "Usuario EduCode" : opinion.NombreVisible)</strong>
+                                    <small>@(string.IsNullOrWhiteSpace(opinion.NombreUsuario) ? "" : $"@{opinion.NombreUsuario}")</small>
+                                </div>
+                            </div>
+                            <span class="opinion-status status-@opinion.Estado">@opinion.EstadoTexto</span>
+                        </header>
+
+                        <div class="admin-opinion-meta">
+                            <span>@opinion.CategoriaTexto</span>
+                            <span class="opinion-stars">@(new string('★', opinion.Calificacion))@(new string('☆', 5 - opinion.Calificacion))</span>
+                            <time datetime="@opinion.FechaCreacion.ToString("O")">@opinion.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time>
+                        </div>
+
+                        <p class="admin-opinion-comment">@opinion.Comentario</p>
+
+                        <footer>
+                            <span class="publication-state">
+                                @(opinion.AutorizaPublicacion ? "✓ Autorizada como reseña pública" : "Uso interno únicamente")
+                            </span>
+                            <form asp-action="ActualizarEstadoOpinion" method="post" class="opinion-state-form" data-loading-message="Actualizando la opinión…">
+                                <input type="hidden" name="opinionId" value="@opinion.Id" />
+                                <label for="estado-@opinion.Id">Estado</label>
+                                <select name="estado" id="estado-@opinion.Id">
+                                    <option value="1" selected="@(opinion.Estado == 1 ? "selected" : null)">Pendiente</option>
+                                    <option value="2" selected="@(opinion.Estado == 2 ? "selected" : null)">Revisada</option>
+                                    <option value="3" selected="@(opinion.Estado == 3 ? "selected" : null)">Considerada</option>
+                                    <option value="4" selected="@(opinion.Estado == 4 ? "selected" : null)">Archivada</option>
+                                </select>
+                                <button class="button button-sm" type="submit">Guardar</button>
+                            </form>
+                        </footer>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

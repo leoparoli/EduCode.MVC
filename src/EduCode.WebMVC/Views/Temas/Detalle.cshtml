@@ -1,0 +1,18 @@
+@model TemaDetalleViewModel
+@{ ViewData["Title"] = Model.NombreTema; 
+    ViewData["EduCodeRobotContext"] = "practice";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+<section class="page-hero compact">
+    <div class="container page-hero-grid-with-robot">
+        <div>
+            <a class="back-link light-link" asp-action="Index">← Volver al recorrido</a>
+            <span class="eyebrow light">MÓDULO DE APRENDIZAJE</span>
+            <h1>@Model.NombreTema</h1>
+            <p>@Model.DescripcionTema</p>
+        </div>
+        <div class="educode-robot-slot page-hero-robot-slot">
+            <partial name="_EduCodeRobot" />
+        </div>
+    </div>
+</section>
+<section class="section"><div class="container narrow-wide"><div class="panel-heading"><div><span class="eyebrow">EJERCICIOS</span><h2>Práctica ordenada por dificultad</h2></div><span class="count-badge">@Model.Ejercicios.Count ejercicios</span></div><div class="exercise-list">@foreach(var ejercicio in Model.Ejercicios){string css=ejercicio.Bloqueado?"locked":ejercicio.Estado.ToLowerInvariant();<article class="exercise-row @css"><div class="exercise-sequence">@ejercicio.Orden.ToString("00")</div><div class="exercise-main"><div><h3>@ejercicio.Titulo</h3><span class="difficulty difficulty-@ejercicio.Dificultad.ToLowerInvariant()">@ejercicio.Dificultad</span></div><div class="exercise-meta"><span>@ejercicio.PuntajeMaximo pts</span><span>@ejercicio.CantidadIntentos intento(s)</span>@if(ejercicio.MejorPuntaje>0){<span>Mejor: @ejercicio.MejorPuntaje.ToString("0.00")</span>}</div></div><div class="exercise-state"><span>@ejercicio.Estado</span>@if(!ejercicio.Bloqueado){<a class="button button-sm button-outline" asp-controller="Ejercicios" asp-action="Detalle" asp-route-id="@ejercicio.Id">Resolver →</a>}else{<span class="lock">🔒</span>}</div></article>}@if(Model.Ejercicios.Count==0){<div class="empty-state"><span>⌁</span><h3>Todavía no hay ejercicios</h3><p>El equipo docente podrá cargar nuevas consignas desde administración.</p></div>}</div></div></section>

@@ -1,0 +1,54 @@
+@model RegistroDocenteRequest
+@{ ViewData["Title"] = "Activar acceso docente"; 
+    ViewData["EduCodeRobotContext"] = "auth";
+    ViewData["EduCodeRobotInitialAnimation"] = ViewData.ModelState.IsValid ? "pulgar_arriba" : "negar";}
+<section class="auth-section">
+    <div class="auth-shell auth-shell-wide">
+        <div class="auth-panel auth-intro teacher-auth-intro auth-intro-with-robot">
+            <div>
+                <span class="eyebrow light">PORTAL DOCENTE</span>
+                <h1>Observá cómo se refleja la clase en la práctica.</h1>
+                <p>EduCode no convierte la práctica en otra evaluación. El portal muestra tendencias, actividad y temas a reforzar, sin corregir ni alterar puntajes.</p>
+            </div>
+            <div class="educode-robot-slot auth-robot-slot"><partial name="_EduCodeRobot" /></div>
+
+            <ul class="check-list light">
+                <li>Métricas agregadas por grupo y tema</li>
+                <li>Ritmo de práctica de los estudiantes</li>
+                <li>Propuestas de nuevos ejercicios</li>
+                <li>Sin notas ni correcciones docentes</li>
+            </ul>
+        </div>
+        <div class="auth-panel auth-form-panel">
+            <a class="back-link" asp-action="Login">← Volver al ingreso</a>
+            <div class="form-heading">
+                <h2>Activar acceso docente</h2>
+                <p>Necesitás un código generado por la administración de EduCode.</p>
+            </div>
+            <form asp-action="RegistroDocente" method="post" class="form-stack" data-auth-form data-loading-message="Validando la invitación y preparando tu portal…">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                <label asp-for="CodigoInvitacion"></label>
+                <input asp-for="CodigoInvitacion" placeholder="EDU-XXXXXXXXXXXX" autocomplete="off" />
+                <span asp-validation-for="CodigoInvitacion"></span>
+                <div class="form-grid two">
+                    <div><label asp-for="Nombre"></label><input asp-for="Nombre" autocomplete="given-name" /><span asp-validation-for="Nombre"></span></div>
+                    <div><label asp-for="Apellido"></label><input asp-for="Apellido" autocomplete="family-name" /><span asp-validation-for="Apellido"></span></div>
+                </div>
+                <label asp-for="NombreUsuario"></label>
+                <input asp-for="NombreUsuario" autocomplete="username" />
+                <span asp-validation-for="NombreUsuario"></span>
+                <label asp-for="Email"></label>
+                <input asp-for="Email" autocomplete="email" />
+                <span asp-validation-for="Email"></span>
+                <label asp-for="Biografia"></label>
+                <textarea asp-for="Biografia" rows="3" placeholder="Área de interés, experiencia o contexto de uso (opcional)"></textarea>
+                <span asp-validation-for="Biografia"></span>
+                <div class="form-grid two">
+                    <div><label asp-for="Password"></label><input asp-for="Password" autocomplete="new-password" /><span asp-validation-for="Password"></span></div>
+                    <div><label asp-for="ConfirmacionPassword"></label><input asp-for="ConfirmacionPassword" autocomplete="new-password" /><span asp-validation-for="ConfirmacionPassword"></span></div>
+                </div>
+                <button class="button button-block button-lg auth-submit" type="submit">Activar portal docente →</button>
+            </form>
+        </div>
+    </div>
+</section>

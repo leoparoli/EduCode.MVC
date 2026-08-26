@@ -1,0 +1,93 @@
+@model HistorialViewModel
+@{
+    ViewData["Title"] = "Historial";
+}
+
+<section class="page-hero compact">
+    <div class="container">
+        <a class="back-link light-link"
+           asp-action="Detalle"
+           asp-route-id="@Model.EjercicioId">
+            ← Volver al ejercicio
+        </a>
+        <span class="eyebrow light">EVOLUCIÓN PERSONAL</span>
+        <h1>Historial: @Model.TituloEjercicio</h1>
+        <p>Compará tus soluciones y observá cómo cambió tu enfoque.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow-wide">
+        @if (Model.Intentos.Count == 0)
+        {
+            <div class="empty-state">
+                <span>⌨</span>
+                <h2>Todavía no enviaste intentos</h2>
+                <p>
+                    Tu primera solución aparecerá aquí luego de recibir feedback.
+                </p>
+                <a class="button"
+                   asp-action="Detalle"
+                   asp-route-id="@Model.EjercicioId">
+                    Resolver ejercicio
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="timeline">
+                @foreach (IntentoHistorialResponse intento in Model.Intentos)
+                {
+                    <article class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-card">
+                            <div class="timeline-heading">
+                                <div>
+                                    <span>INTENTO #@intento.NumeroIntento</span>
+                                    <h3>@intento.Estado</h3>
+                                </div>
+                                <div>
+                                    <strong>@(intento.Puntaje?.ToString("0.00") ?? "-")</strong>
+                                    <small>puntos</small>
+                                </div>
+                            </div>
+
+                            <p class="timeline-date">
+                                @intento.Fecha.ToLocalTime().ToString("dd/MM/yyyy · HH:mm")
+                            </p>
+
+                            @if (!string.IsNullOrWhiteSpace(intento.MensajeEstado))
+                            {
+                                <div class="timeline-status @(intento.EsCorreccionProvisoria ? "provisional" : "pending")">
+                                    @intento.MensajeEstado
+                                </div>
+                            }
+
+                            @if (intento.PuedeReintentar)
+                            {
+                                <form asp-action="ReintentarCorreccion"
+                                      method="post"
+                                      class="timeline-retry-form">
+                                    <input type="hidden"
+                                           name="intentoId"
+                                           value="@intento.Id" />
+                                    <input type="hidden"
+                                           name="ejercicioId"
+                                           value="@Model.EjercicioId" />
+                                    <button class="button button-sm" type="submit">
+                                        Solicitar explicación IA
+                                    </button>
+                                </form>
+                            }
+
+                            <details>
+                                <summary>Ver código enviado</summary>
+                                <pre><code>@intento.Codigo</code></pre>
+                            </details>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

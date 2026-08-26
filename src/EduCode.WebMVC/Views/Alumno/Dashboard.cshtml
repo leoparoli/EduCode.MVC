@@ -1,0 +1,36 @@
+@model DashboardViewModel
+@{ ViewData["Title"] = "Mi panel"; decimal porcentaje = Math.Clamp(Model.Progreso.PorcentajeGeneral,0,100); 
+    ViewData["EduCodeRobotContext"] = "dashboard";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+<section class="dashboard-hero">
+    <div class="container dashboard-hero-grid-with-robot">
+        <div>
+            <span class="eyebrow light">MI ESPACIO DE APRENDIZAJE</span>
+            <h1>Hola, @(Model.NombreCompleto.Split(' ')[0]).</h1>
+            <p>Tu recorrido se construye intento a intento. Hoy podés avanzar un paso más.</p>
+        </div>
+        <div class="educode-robot-slot dashboard-robot-slot">
+            <partial name="_EduCodeRobot" />
+        </div>
+        <div class="dashboard-hero-actions">
+            <a class="button button-light" asp-controller="Temas" asp-action="Index">Continuar practicando →</a>
+            <a class="button button-outline-light" asp-controller="Perfil" asp-action="Index">Editar mi cuenta</a>
+        </div>
+    </div>
+</section>
+<section class="dashboard-content"><div class="container"><div class="stats-grid"><article class="stat-card progress-stat"><div class="progress-ring" style="--progress:@porcentaje"><div><strong>@porcentaje.ToString("0")%</strong><span>completado</span></div></div><div><span>PROGRESO GENERAL</span><h3>@Model.Progreso.Aprobados de @Model.Progreso.TotalEjercicios ejercicios</h3><p>Los ejercicios aprobados consolidan tu avance.</p></div></article><article class="stat-card"><span class="stat-icon">✓</span><small>APROBADOS</small><strong>@Model.Progreso.Aprobados</strong><p>Ejercicios que alcanzaron el mínimo requerido.</p></article><article class="stat-card"><span class="stat-icon amber">↻</span><small>EN PROCESO</small><strong>@Model.Progreso.EnProceso</strong><p>Intentos activos que todavía podés mejorar.</p></article><article class="stat-card"><span class="stat-icon dark">⌁</span><small>TEMAS</small><strong>@Model.Temas.Count</strong><p>Módulos disponibles en @(Model.Curso?.Nombre).</p></article></div>
+<section class="tutor-dashboard-card"><div class="tutor-dashboard-mark" aria-hidden="true">&lt;/&gt;</div><div class="tutor-dashboard-copy"><span class="eyebrow">NUEVO EN EDUCODE 2.8</span><h2>Consultá al Tutor IA de Programación 1</h2><p>Resolvé dudas conceptuales, compará funcionalidades de JavaScript y recibí orientación sin salir del alcance del curso.</p><div class="tutor-dashboard-tags"><span>Filtro temático local</span><span>Ejemplos didácticos</span><span>Sin resolver por vos</span></div></div><a class="button button-light tutor-dashboard-action" asp-controller="Tutor" asp-action="Index">Abrir Tutor IA →</a></section>
+<section class="dashboard-gamification-card">
+    <div class="dashboard-gamification-copy">
+        <span class="eyebrow light">NUEVO EN EDUCODE 2.9</span>
+        <h2>Tu progreso ahora deja huella</h2>
+        <p>Sumá tus mejores notas, construí rachas y desbloqueá insignias sin premiar intentos repetidos.</p>
+    </div>
+    <div class="dashboard-gamification-metrics">
+        <div><strong>@Model.Gamificacion.PuntajeRanking.ToString("0.##")</strong><span>puntos</span></div>
+        <div><strong>@(Model.Gamificacion.PosicionRanking?.ToString() ?? "—")</strong><span>posición</span></div>
+        <div><strong>@Model.Gamificacion.MejorRacha.CantidadEjercicios</strong><span>mejor racha</span></div>
+    </div>
+    <a class="button button-light" asp-controller="Comunidad" asp-action="Index">Ver ranking y logros →</a>
+</section>
+<div class="dashboard-grid"><section class="panel"><div class="panel-heading"><div><span class="eyebrow">RECORRIDO</span><h2>Temas de @Model.Curso?.Nombre</h2></div><a class="text-link" asp-controller="Temas" asp-action="Index">Ver todos →</a></div><div class="module-list">@foreach(var tema in Model.Temas.Take(4)){<a class="module-row" asp-controller="Temas" asp-action="Detalle" asp-route-id="@tema.Id" asp-route-nombre="@tema.Nombre" asp-route-descripcion="@tema.Descripcion"><span class="module-order">@tema.Orden.ToString("00")</span><div class="module-copy"><strong>@tema.Nombre</strong><small>@tema.EjerciciosCompletados de @tema.CantidadEjercicios completados</small><div class="progress thin"><i style="width:@tema.PorcentajeProgreso%"></i></div></div><span class="module-percent">@tema.PorcentajeProgreso.ToString("0")%</span><span class="arrow">→</span></a>}</div></section><aside class="panel activity-panel"><div class="panel-heading"><div><span class="eyebrow">ACTIVIDAD</span><h2>Tu próximo paso</h2></div></div>@if(Model.UltimaActividad is not null){<div class="activity-card"><span class="activity-status">@Model.UltimaActividad.Estado</span><h3>@Model.UltimaActividad.Titulo</h3><p>Mejor puntaje: <strong>@Model.UltimaActividad.MejorPuntaje.ToString("0.00")</strong> · @Model.UltimaActividad.CantidadIntentos intento(s)</p><a class="button button-block" asp-controller="Ejercicios" asp-action="Detalle" asp-route-id="@Model.UltimaActividad.EjercicioId">Retomar ejercicio</a></div>}else{<div class="empty-state compact"><span>⌨</span><h3>Tu historial comienza hoy</h3><p>Elegí el primer tema y enviá tu primera solución.</p><a class="button button-block" asp-controller="Temas" asp-action="Index">Explorar temas</a></div>}<div class="tip-card"><span>Consejo didáctico</span><p>Antes de ejecutar, explicá en una frase qué debería hacer cada bloque de tu código.</p></div></aside></div></div></section>

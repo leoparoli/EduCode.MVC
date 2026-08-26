@@ -1,0 +1,90 @@
+@model RegistroRequest
+@{
+    ViewData["Title"] = "Crear cuenta";
+
+    ViewData["EduCodeRobotContext"] = "auth";
+    ViewData["EduCodeRobotInitialAnimation"] = ViewData.ModelState.IsValid ? "pulgar_arriba" : "negar";}
+
+<section class="auth-section">
+    <div class="auth-shell auth-shell-wide">
+        <div class="auth-panel auth-intro auth-intro-with-robot">
+            <div>
+                <span class="eyebrow light">TU RECORRIDO PERSONAL</span>
+                <h1>Empezá desde tu nivel y avanzá con evidencia.</h1>
+                <p>Cada ejercicio aprobado, intento y devolución quedará registrado para que puedas observar tu evolución.</p>
+            </div>
+
+            <div class="educode-robot-slot auth-robot-slot"><partial name="_EduCodeRobot" /></div>
+
+            <ul class="check-list light">
+                <li>Progreso por tema</li>
+                <li>Pistas graduales</li>
+                <li>Historial de intentos</li>
+                <li>Feedback inmediato</li>
+            </ul>
+        </div>
+
+        <div class="auth-panel auth-form-panel">
+            <a class="back-link" asp-controller="Home" asp-action="Index">← Volver al inicio</a>
+
+            <div class="form-heading">
+                <h2>Crear cuenta</h2>
+                <p>Completá tus datos para comenzar.</p>
+            </div>
+
+            <form asp-action="Registro"
+                  method="post"
+                  class="form-stack"
+                  data-auth-form
+                  data-loading-message="Creando tu cuenta y preparando el primer recorrido…">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="form-grid two">
+                    <div>
+                        <label asp-for="Nombre"></label>
+                        <input asp-for="Nombre" autocomplete="given-name" placeholder="Leonardo" />
+                        <span asp-validation-for="Nombre"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Apellido"></label>
+                        <input asp-for="Apellido" autocomplete="family-name" placeholder="Paroli" />
+                        <span asp-validation-for="Apellido"></span>
+                    </div>
+                </div>
+
+                <label asp-for="NombreUsuario"></label>
+                <input asp-for="NombreUsuario" autocomplete="username" placeholder="leonardo.paroli" />
+                <span asp-validation-for="NombreUsuario"></span>
+
+                <label asp-for="Email"></label>
+                <input asp-for="Email" autocomplete="email" placeholder="nombre@correo.com" />
+                <span asp-validation-for="Email"></span>
+
+                <div class="form-grid two">
+                    <div>
+                        <label asp-for="Password"></label>
+                        <div class="password-field">
+                            <input asp-for="Password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" />
+                            <button type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button>
+                        </div>
+                        <span asp-validation-for="Password"></span>
+                    </div>
+                    <div>
+                        <label asp-for="ConfirmacionPassword"></label>
+                        <div class="password-field">
+                            <input asp-for="ConfirmacionPassword" autocomplete="new-password" placeholder="Repetí la contraseña" />
+                            <button type="button" data-password-toggle aria-label="Mostrar confirmación de contraseña">Ver</button>
+                        </div>
+                        <span asp-validation-for="ConfirmacionPassword"></span>
+                    </div>
+                </div>
+
+                <button class="button button-block button-lg auth-submit" type="submit">
+                    <span>Crear mi cuenta</span><span aria-hidden="true">→</span>
+                </button>
+            </form>
+
+            <p class="form-footer">¿Ya tenés una cuenta? <a asp-action="Login">Ingresá</a></p>
+        </div>
+    </div>
+</section>

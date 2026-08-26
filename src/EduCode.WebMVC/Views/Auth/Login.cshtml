@@ -1,0 +1,89 @@
+@model LoginRequest
+@{
+    ViewData["Title"] = "Ingresar";
+    string? returnUrl = ViewBag.ReturnUrl as string;
+
+    ViewData["EduCodeRobotContext"] = "auth";
+    ViewData["EduCodeRobotInitialAnimation"] = ViewData.ModelState.IsValid ? "pulgar_arriba" : "negar";}
+
+<section class="auth-section">
+    <div class="auth-shell">
+        <div class="auth-panel auth-intro auth-intro-with-robot">
+            <div>
+                <span class="eyebrow light">BIENVENIDO/A</span>
+                <h1>Retomá tu recorrido donde lo dejaste.</h1>
+                <p>Ingresá para revisar tu progreso, resolver ejercicios y consultar el historial de tus intentos.</p>
+            </div>
+
+            <div class="educode-robot-slot auth-robot-slot"><partial name="_EduCodeRobot" /></div>
+
+            <blockquote class="auth-quote">
+                <span class="quote-mark quote-open" aria-hidden="true">“</span>
+                <p>La práctica no consiste en repetir una respuesta, sino en comprender cada decisión.</p>
+                <span class="quote-mark quote-close" aria-hidden="true">”</span>
+            </blockquote>
+        </div>
+
+        <div class="auth-panel auth-form-panel">
+            <a class="back-link" asp-controller="Home" asp-action="Index">← Volver al inicio</a>
+
+            <div class="form-heading">
+                <h2>Iniciar sesión</h2>
+                <p>Usá tu correo o nombre de usuario.</p>
+            </div>
+
+            <form asp-action="Login"
+                  method="post"
+                  class="form-stack"
+                  data-auth-form
+                  data-loading-message="Buscando tu usuario y preparando tu recorrido…">
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <label asp-for="EmailONombreUsuario"></label>
+                <input asp-for="EmailONombreUsuario" autocomplete="username" placeholder="nombre@correo.com" />
+                <span asp-validation-for="EmailONombreUsuario"></span>
+
+                <label asp-for="Password"></label>
+                <div class="password-field">
+                    <input asp-for="Password" autocomplete="current-password" placeholder="Tu contraseña" />
+                    <button type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button>
+                </div>
+                <span asp-validation-for="Password"></span>
+
+                <button class="button button-block button-lg auth-submit" type="submit">
+                    <span>Ingresar</span><span aria-hidden="true">→</span>
+                </button>
+            </form>
+
+            <div class="divider"><span>o probá la plataforma</span></div>
+
+            <div class="demo-access-grid">
+                <form asp-action="AccesoDemoAlumno"
+                      method="post"
+                      data-auth-form
+                      data-loading-message="Preparando el entorno de demostración…">
+                    <button class="button button-outline button-block" type="submit">
+                        Demo alumno
+                    </button>
+                </form>
+                <form asp-action="AccesoDemoDocente"
+                      method="post"
+                      data-auth-form
+                      data-loading-message="Preparando la mirada docente…">
+                    <button class="button button-outline button-block" type="submit">
+                        Demo docente
+                    </button>
+                </form>
+            </div>
+
+            <p class="form-footer">¿Todavía no tenés cuenta? <a asp-action="Registro">Registrate como alumno</a></p>
+            <p class="form-footer teacher-access-link">¿Recibiste una invitación? <a asp-action="RegistroDocente">Activá tu acceso docente</a></p>
+
+            <div class="demo-credentials">
+                <strong>Administrador local</strong>
+                <code>admin@educode.local · Admin123!</code>
+            </div>
+        </div>
+    </div>
+</section>

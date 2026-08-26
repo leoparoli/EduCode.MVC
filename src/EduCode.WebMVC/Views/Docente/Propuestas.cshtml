@@ -1,0 +1,59 @@
+@model DocentePropuestasViewModel
+@{ ViewData["Title"] = "Propuestas docentes"; 
+    ViewData["EduCodeRobotContext"] = "practice";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+<section class="teacher-hero compact"><div class="container teacher-hero-grid"><div><span class="eyebrow light">CONSTRUCCIÓN COLABORATIVA</span><h1>Proponé nuevas oportunidades de práctica.</h1><p>La propuesta será revisada por administración antes de incorporarse al recorrido general.</p></div><a class="button button-outline-light" asp-action="Index">Volver al panel</a></div></section>
+<section class="section"><div class="container proposal-layout">
+    <section class="panel proposal-form-panel">
+        <div class="panel-heading"><div><span class="eyebrow">@(Model.Formulario.PropuestaId > 0 ? "AJUSTAR PROPUESTA" : "NUEVA PROPUESTA")</span><h2>@(Model.Formulario.PropuestaId > 0 ? "Incorporá la devolución recibida" : "Diseñá la idea pedagógica")</h2></div></div>
+        <form asp-action="Propuestas" method="post" class="form-stack">
+            <input asp-for="Formulario.PropuestaId" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <label asp-for="Formulario.TemaId">Tema</label>
+            <select asp-for="Formulario.TemaId">@foreach (var tema in Model.Temas){<option value="@tema.Id">@tema.Nombre</option>}</select>
+            <span asp-validation-for="Formulario.TemaId"></span>
+            <div class="form-grid two"><div><label asp-for="Formulario.Titulo"></label><input asp-for="Formulario.Titulo" placeholder="Ej.: Analizar una lista de temperaturas" /><span asp-validation-for="Formulario.Titulo"></span></div><div><label asp-for="Formulario.Dificultad"></label><select asp-for="Formulario.Dificultad"><option value="1">Inicial</option><option value="2">Básico</option><option value="3">Intermedio</option><option value="4">Avanzado</option><option value="5">Desafío</option></select></div></div>
+            <label asp-for="Formulario.Consigna"></label><textarea asp-for="Formulario.Consigna" rows="7" placeholder="Escribí una consigna clara, acotada y acorde a Programación 1."></textarea><span asp-validation-for="Formulario.Consigna"></span>
+            <label asp-for="Formulario.CodigoInicial"></label><textarea asp-for="Formulario.CodigoInicial" rows="7" class="code-input"></textarea><span asp-validation-for="Formulario.CodigoInicial"></span>
+            <label asp-for="Formulario.CriterioPrincipal"></label><textarea asp-for="Formulario.CriterioPrincipal" rows="3" placeholder="Ej.: Recorre todos los elementos y retorna correctamente el mayor valor."></textarea><span asp-validation-for="Formulario.CriterioPrincipal"></span>
+            <label asp-for="Formulario.OrientacionPista"></label><textarea asp-for="Formulario.OrientacionPista" rows="3" placeholder="Una orientación que desbloquee el razonamiento sin resolver el ejercicio."></textarea>
+            <label asp-for="Formulario.FundamentoPedagogico"></label><textarea asp-for="Formulario.FundamentoPedagogico" rows="3" placeholder="Qué concepto permitiría practicar y por qué aporta al recorrido."></textarea>
+            <div class="teacher-boundary-note"><strong>Alcance docente</strong><p>Podés sugerir contenido, pero no publicarlo directamente ni modificar evaluaciones automáticas.</p></div>
+            <div class="form-submit-row">
+                <button class="button button-lg" type="submit">@(Model.Formulario.PropuestaId > 0 ? "Reenviar propuesta" : "Enviar propuesta")</button>
+            </div>
+        </form>
+    </section>
+    <aside class="proposal-history">
+        <div class="proposal-robot-card"><partial name="_EduCodeRobot" /></div>
+        <div class="teacher-section-heading"><div><span class="eyebrow">SEGUIMIENTO</span><h2>Tus propuestas</h2></div></div>
+        @if (Model.Propuestas.Count == 0)
+        {
+            <div class="panel empty-state"><p>Todavía no enviaste propuestas.</p></div>
+        }
+        else
+        {
+            @foreach (var propuesta in Model.Propuestas)
+            {
+                <article class="proposal-card state-@propuesta.Estado.ToLowerInvariant()">
+                    <header><span>@propuesta.Tema · @propuesta.Dificultad</span><strong>@propuesta.Estado</strong></header>
+                    <h3>@propuesta.Titulo</h3>
+                    <p>@propuesta.FundamentoPedagogico</p>
+                    <small>Enviada el @propuesta.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</small>
+                    @if (!string.IsNullOrWhiteSpace(propuesta.ObservacionRevision))
+                    {
+                        <div class="review-note"><strong>Respuesta de administración</strong><p>@propuesta.ObservacionRevision</p></div>
+                    }
+                    @if (propuesta.Estado == "RequiereAjustes")
+                    {
+                        <a asp-action="Propuestas" asp-route-editar="@propuesta.Id">Editar y reenviar →</a>
+                    }
+                    @if (propuesta.EjercicioPublicadoId.HasValue)
+                    {
+                        <a asp-controller="Ejercicios" asp-action="Detalle" asp-route-id="@propuesta.EjercicioPublicadoId">Ver ejercicio publicado →</a>
+                    }
+                </article>
+            }
+        }
+    </aside>
+</div></section>

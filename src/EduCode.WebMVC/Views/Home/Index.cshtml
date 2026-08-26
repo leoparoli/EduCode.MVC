@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "EduCode · Aprendé Programación 1";
+    bool usuarioAutenticado = Context.Session.GetInt32("UsuarioId").HasValue;
+
+    ViewData["EduCodeRobotContext"] = "home";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+
+<section class="hero home-hero-v296">
+    <div class="container hero-grid home-hero-grid-with-robot">
+        <div class="hero-copy">
+            <span class="eyebrow">APRENDIZAJE ACTIVO DE PROGRAMACIÓN 1</span>
+            <h1>Practicá, comprendé<br /><span>y medí tu progreso.</span></h1>
+            <p>EduCode reúne ejercicios progresivos, evaluación automática, un Tutor IA contextual y herramientas de seguimiento para que avances en JavaScript sin recibir soluciones prefabricadas.</p>
+            <div class="hero-actions">
+                @if (usuarioAutenticado)
+                {
+                    <a class="button button-lg" asp-controller="Alumno" asp-action="Dashboard">Ir a mi panel <span>→</span></a>
+                    <a class="button button-outline button-lg" asp-controller="Tutor" asp-action="Index">Abrir Tutor IA</a>
+                }
+                else
+                {
+                    <a class="button button-lg" asp-controller="Auth" asp-action="Registro">Crear mi cuenta <span>→</span></a>
+                    <a class="button button-outline button-lg" asp-controller="Auth" asp-action="Login">Continuar aprendiendo</a>
+                }
+            </div>
+            <div class="hero-proof home-proof-v296">
+                <div><strong>48</strong><span>ejercicios progresivos</span></div>
+                <div><strong>7</strong><span>temas fundamentales</span></div>
+                <div><strong>100%</strong><span>progreso personal visible</span></div>
+            </div>
+        </div>
+        <div class="hero-visual home-learning-visual" aria-label="Vista representativa de la experiencia EduCode">
+            <div class="code-window">
+                <div class="window-bar"><span></span><span></span><span></span><small>analizarNotas.js</small></div>
+                <pre><code><span class="kw">function</span> <span class="fn">promedioAprobadas</span>(notas) {
+  <span class="kw">let</span> suma = <span class="bool">0</span>;
+  <span class="kw">let</span> cantidad = <span class="bool">0</span>;
+
+  <span class="comment">// Recorré el array y decidí qué contar</span>
+  <span class="cursor">▌</span>
+}</code></pre>
+            </div>
+            <div class="feedback-card floating-card tutor-preview-card">
+                <span class="feedback-icon">✦</span>
+                <div><strong>Tutor EduCode</strong><p>¿Qué condición podrías usar para considerar únicamente las notas aprobadas?</p></div>
+            </div>
+            <div class="progress-card floating-card streak-preview-card"><strong>Racha actual</strong><span>4 ✓</span><div class="progress"><i style="width:80%"></i></div><small>Seguí practicando para superarte.</small></div>
+        </div>
+        <div class="educode-robot-slot home-robot-slot">
+            <partial name="_EduCodeRobot" />
+        </div>
+    </div>
+</section>
+
+<section class="home-topics-band" aria-label="Temas disponibles">
+    <div class="container">
+        <span>RECORRIDO ACTUAL</span>
+        <div class="home-topic-chips">
+            <strong>Variables y operadores</strong><strong>Condicionales</strong><strong>Bucles</strong><strong>Strings</strong><strong>Array</strong><strong>Lista</strong><strong>Funciones</strong><strong>Clases y objetos</strong>
+        </div>
+    </div>
+</section>
+
+<section class="section section-soft home-capabilities" id="funcionalidades">
+    <div class="container">
+        <div class="section-heading centered">
+            <span class="eyebrow">LA EXPERIENCIA ACTUAL DE EDUCODE</span>
+            <h2>Una plataforma que acompaña todo el proceso</h2>
+            <p>No se limita a corregir código: organiza la práctica, orienta tus decisiones y conserva evidencia clara de tu evolución.</p>
+        </div>
+        <div class="feature-grid feature-grid-six">
+            <article class="feature-card"><span class="feature-number">01</span><div class="feature-icon">⌁</div><h3>Recorrido progresivo</h3><p>Avanzá desde variables hasta clases y objetos con objetivos claros, dificultad creciente y estados visibles.</p></article>
+            <article class="feature-card"><span class="feature-number">02</span><div class="feature-icon">✓</div><h3>Evaluación inmediata</h3><p>Probá tu solución, revisá casos de prueba y recibí un diagnóstico concreto para decidir tu próximo intento.</p></article>
+            <article class="feature-card"><span class="feature-number">03</span><div class="feature-icon">✦</div><h3>Tutor IA contextual</h3><p>Consultá conceptos de Programación 1 con una guía protegida que orienta sin hacer el ejercicio por vos.</p></article>
+            <article class="feature-card"><span class="feature-number">04</span><div class="feature-icon">🏅</div><h3>Ranking, insignias y rachas</h3><p>Observá tu constancia, desbloqueá logros y compará tu avance sin perder de vista el aprendizaje real.</p></article>
+            <article class="feature-card"><span class="feature-number">05</span><div class="feature-icon">◎</div><h3>Perfil personalizable</h3><p>Elegí un nombre de usuario único, un avatar o una foto para construir tu identidad dentro de EduCode.</p></article>
+            <article class="feature-card"><span class="feature-number">06</span><div class="feature-icon">💬</div><h3>Mejora continua</h3><p>Enviá opiniones, sugerencias o reportes y seguí su estado desde tu cuenta mientras el equipo los revisa.</p></article>
+        </div>
+    </div>
+</section>
+
+<section class="section home-experience-section">
+    <div class="container home-experience-grid">
+        <div class="home-experience-copy">
+            <span class="eyebrow">TU ESPACIO DE APRENDIZAJE</span>
+            <h2>Todo tu recorrido, conectado</h2>
+            <p class="lead">Tu panel, el Tutor IA, el historial, la comunidad y tu cuenta utilizan la misma identidad y el mismo progreso.</p>
+            <div class="home-experience-points">
+                <div><span>1</span><p><strong>Continuidad personal.</strong> Tus conversaciones, consultas disponibles, intentos y logros se mantienen separados por usuario.</p></div>
+                <div><span>2</span><p><strong>Identidad cuidada.</strong> El nombre de usuario es único y sus cambios están limitados para evitar confusiones o suplantaciones.</p></div>
+                <div><span>3</span><p><strong>Escucha activa.</strong> Las opiniones quedan registradas con categoría, calificación y estado de revisión.</p></div>
+            </div>
+            <a class="text-link" asp-controller="Home" asp-action="AcercaDe">Conocer el origen y propósito del proyecto →</a>
+        </div>
+        <div class="home-product-card" aria-label="Resumen de herramientas disponibles">
+            <div class="home-product-header">
+                <span class="home-product-avatar">&lt;/&gt;</span>
+                <div><strong>Vista de tu espacio EduCode</strong><small>Ejemplo visual de herramientas conectadas</small></div>
+                <span class="home-status-pill">DEMO</span>
+            </div>
+            <div class="home-product-tabs"><span class="active">Progreso</span><span>Tutor IA</span><span>Opiniones</span></div>
+            <div class="home-product-progress">
+                <div><span>Ejemplo de recorrido</span><strong>68%</strong></div>
+                <div class="progress"><i style="width:68%"></i></div>
+            </div>
+            <div class="home-mini-grid">
+                <article><span>🏅</span><strong>Insignias</strong><small>Logros por práctica y constancia</small></article>
+                <article><span>✦</span><strong>Tutor contextual</strong><small>Consultas vinculadas a P1</small></article>
+                <article><span>💬</span><strong>Tu voz cuenta</strong><small>Opiniones con seguimiento</small></article>
+                <article><span>◎</span><strong>Perfil propio</strong><small>Avatar, foto y usuario único</small></article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-soft">
+    <div class="container process-grid">
+        <div>
+            <span class="eyebrow">CÓMO FUNCIONA</span>
+            <h2>Un ciclo simple para aprender mejor</h2>
+            <p class="lead">Cada intento produce información útil y cada herramienta tiene un propósito dentro de tu siguiente decisión.</p>
+        </div>
+        <ol class="process-list">
+            <li><span>1</span><div><strong>Elegí un tema y un desafío</strong><p>Revisá módulos, dificultad, criterios y porcentaje de avance.</p></div></li>
+            <li><span>2</span><div><strong>Escribí y probá tu solución</strong><p>Resolvé con JavaScript y observá qué casos funcionan o necesitan revisión.</p></div></li>
+            <li><span>3</span><div><strong>Interpretá el feedback</strong><p>Identificá aciertos, errores concretos y un próximo paso posible.</p></div></li>
+            <li><span>4</span><div><strong>Consultá sin perder autonomía</strong><p>Usá el Tutor IA para comprender conceptos, no para copiar una respuesta.</p></div></li>
+            <li><span>5</span><div><strong>Medí y compartí tu experiencia</strong><p>Revisá historial, rachas y logros; enviá una opinión cuando detectes una mejora.</p></div></li>
+        </ol>
+    </div>
+</section>
+
+<section class="cta-section home-cta-v296">
+    <div class="container cta-card">
+        @if (usuarioAutenticado)
+        {
+            <div><span class="eyebrow light">TU PRÓXIMO PASO</span><h2>Retomá desde donde quedaste.</h2><p>Volvé a tu panel para continuar el recorrido, revisar tu progreso o realizar una nueva consulta al Tutor.</p></div>
+            <a class="button button-light button-lg" asp-controller="Alumno" asp-action="Dashboard">Continuar mi recorrido →</a>
+        }
+        else
+        {
+            <div><span class="eyebrow light">TU PRÓXIMO PASO</span><h2>Empezá con un ejercicio, no con una solución.</h2><p>Creá tu cuenta y recorré Programación 1 con herramientas que respetan tu proceso y aprenden de tu experiencia.</p></div>
+            <a class="button button-light button-lg" asp-controller="Auth" asp-action="Registro">Crear cuenta gratuita →</a>
+        }
+    </div>
+</section>

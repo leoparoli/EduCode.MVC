@@ -1,0 +1,65 @@
+@model AdminDashboardViewModel
+@{ ViewData["Title"] = "Administración"; }
+<section class="admin-hero admin-hero-v3"><div class="container"><div><span class="eyebrow light">CONTROL GENERAL · EDUCODE 3.0</span><h1>Administración y analítica</h1><p>Supervisá el comportamiento académico, la estructura docente, la calidad del contenido y el estado real del sistema.</p></div><div class="hero-actions"><a class="button button-light" asp-action="PropuestasEjercicios">Propuestas (@Model.Metricas.PropuestasPendientes)</a><a class="button button-outline-light" asp-action="InvitacionesDocentes">Invitar docente</a><a class="button button-outline-light" asp-action="EstructuraAcademica">Grupos y alumnos</a></div></div></section>
+<section class="section admin-section"><div class="container">
+    <div class="admin-subnav"><a asp-action="AltaTema">+ Tema</a><a asp-action="AltaEjercicio">+ Ejercicio</a><a asp-action="Opiniones">Opiniones</a><a asp-action="PropuestasEjercicios">Propuestas docentes</a><a asp-action="InvitacionesDocentes">Accesos docentes</a><a asp-action="EstructuraAcademica">Estructura académica</a></div>
+    <div class="stats-grid admin-stats-v3">
+        <article class="stat-card"><small>USUARIOS ACTIVOS</small><strong>@Model.Metricas.TotalUsuarios</strong><p>@Model.Metricas.TotalAlumnos alumnos · @Model.Metricas.TotalDocentes docentes</p></article>
+        <article class="stat-card"><small>ACTIVOS · 30 DÍAS</small><strong>@Model.Metricas.UsuariosActivosUltimos30Dias</strong><p>Usuarios que registraron práctica.</p></article>
+        <article class="stat-card"><small>INTENTOS · 30 DÍAS</small><strong>@Model.Metricas.IntentosUltimos30Dias</strong><p>Entregas procesadas por EduCode.</p></article>
+        <article class="stat-card"><small>APROBACIÓN</small><strong>@Model.Metricas.TasaAprobacionUltimos30Dias.ToString("0.0")%</strong><p>Puntaje promedio @Model.Metricas.PuntajePromedioUltimos30Dias.ToString("0.0").</p></article>
+        <article class="stat-card"><small>SOLICITUDES IA</small><strong>@Model.Metricas.SolicitudesIAUltimos30Dias</strong><p>@Model.Metricas.FallosIAUltimos30Dias fallos registrados.</p></article>
+        <article class="stat-card"><small>GRUPOS</small><strong>@Model.Metricas.TotalGrupos</strong><p>Estructuras académicas activas.</p></article>
+        <article class="stat-card"><small>PROPUESTAS</small><strong>@Model.Metricas.PropuestasPendientes</strong><p>Pendientes de decisión editorial.</p></article>
+        <article class="stat-card"><small>ESTADO DEL SISTEMA</small><strong class="@(Model.EstadoSistema.Estado == "Operativa" ? "online" : "degraded")">@Model.EstadoSistema.Estado</strong><p>API: @Model.EstadoSistema.Componentes.Api.Estado · BD: @Model.EstadoSistema.Componentes.BaseDatos.Estado</p></article>
+    </div>
+
+    <div class="admin-v3-grid">
+        <section class="panel">
+            <div class="panel-heading"><div><span class="eyebrow">DIFICULTAD OBSERVADA</span><h2>Comportamiento por tema</h2></div><small>Últimos 30 días</small></div>
+            <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Tema</th><th>Alumnos</th><th>Intentos</th><th>Aprobación</th><th>Promedio</th><th>Señal</th></tr></thead><tbody>
+            @if(Model.Metricas.Temas.Count == 0){<tr><td colspan="6" class="table-empty">Todavía no hay actividad suficiente.</td></tr>}
+            else{foreach(var tema in Model.Metricas.Temas){<tr><td><strong>@tema.Tema</strong></td><td>@tema.AlumnosQuePracticaron</td><td>@tema.Intentos</td><td>@tema.TasaAprobacion.ToString("0.0")%</td><td>@tema.PuntajePromedio.ToString("0.0")</td><td><span class="signal-pill">@tema.Senal</span></td></tr>}}
+            </tbody></table></div>
+        </section>
+        <aside class="system-health-panel">
+            <span class="eyebrow light">SALUD DEL SERVICIO</span><h2>Verificación real</h2>
+            <div class="health-component"><span class="health-dot @(Model.EstadoSistema.Componentes.Api.Estado == "Operativa" ? "ok" : "bad")"></span><div><strong>Web API</strong><small>@Model.EstadoSistema.Componentes.Api.Detalle</small></div></div>
+            <div class="health-component"><span class="health-dot @(Model.EstadoSistema.Componentes.BaseDatos.Estado == "Operativa" ? "ok" : "bad")"></span><div><strong>Base de datos</strong><small>@Model.EstadoSistema.Componentes.BaseDatos.Detalle</small></div></div>
+            <div class="health-version"><small>VERSIÓN EN EJECUCIÓN</small><strong>@Model.EstadoSistema.Version</strong><span>Verificado @Model.EstadoSistema.FechaUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span></div>
+        </aside>
+    </div>
+
+    <section class="panel"><div class="panel-heading"><div><span class="eyebrow">ESTRUCTURA DE CONTENIDO</span><h2>Temas de Programación 1</h2></div><div class="panel-actions"><a class="button button-sm button-outline" asp-action="AltaTema">Agregar tema</a><a class="button button-sm" asp-action="AltaEjercicio">Agregar ejercicio</a></div></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Orden</th><th>Tema</th><th>Descripción</th><th>Ejercicios</th><th>Estado</th></tr></thead><tbody>@foreach(var tema in Model.Temas){<tr><td><span class="order-badge">@tema.Orden</span></td><td><strong>@tema.Nombre</strong></td><td>@tema.Descripcion</td><td>@tema.CantidadEjercicios</td><td><span class="status-pill">Activo</span></td></tr>}</tbody></table></div></section>
+
+    <section class="panel audit-panel">
+        <div class="panel-heading">
+            <div><span class="eyebrow">TRAZABILIDAD</span><h2>Actividad administrativa reciente</h2></div>
+            <small>Últimas @Model.Metricas.AuditoriaReciente.Count acciones registradas</small>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead>
+                <tbody>
+                @if (Model.Metricas.AuditoriaReciente.Count == 0)
+                {
+                    <tr><td colspan="5" class="table-empty">Todavía no hay acciones administrativas registradas.</td></tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Metricas.AuditoriaReciente)
+                    {
+                        <tr>
+                            <td>@item.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><strong>@item.Usuario</strong></td>
+                            <td><span class="status-pill">@item.Accion</span></td>
+                            <td>@item.Entidad <small class="table-subline">@item.EntidadId</small></td>
+                            <td class="audit-detail">@item.Detalle</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div></section>

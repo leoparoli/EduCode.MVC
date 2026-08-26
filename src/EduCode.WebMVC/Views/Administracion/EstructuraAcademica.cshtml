@@ -1,0 +1,110 @@
+@model AdminEstructuraAcademicaViewModel
+@{ ViewData["Title"] = "Estructura académica"; }
+
+<section class="admin-hero compact">
+    <div class="container">
+        <div>
+            <span class="eyebrow light">CURSOS Y GRUPOS</span>
+            <h1>Estructura académica</h1>
+            <p>Asigná docentes y asociá alumnos para habilitar métricas contextualizadas.</p>
+        </div>
+        <a class="button button-outline-light" asp-action="Index">Volver</a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="stats-grid structure-stats">
+            <article class="stat-card"><small>DOCENTES</small><strong>@Model.Estructura.Docentes.Count</strong></article>
+            <article class="stat-card"><small>ALUMNOS</small><strong>@Model.Estructura.Alumnos.Count</strong></article>
+            <article class="stat-card"><small>GRUPOS</small><strong>@Model.Estructura.Grupos.Count</strong></article>
+            <article class="stat-card"><small>CURSOS</small><strong>@Model.Estructura.Cursos.Count</strong></article>
+        </div>
+
+        <div class="admin-two-column structure-forms">
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><span class="eyebrow">NUEVO GRUPO</span><h2>Asignar un docente</h2></div>
+                </div>
+                <form asp-action="CrearGrupo" method="post" class="form-stack">
+                    <label asp-for="NuevoGrupo.Nombre"></label>
+                    <input asp-for="NuevoGrupo.Nombre" placeholder="Ej.: P1 · Turno nocturno" />
+                    <label asp-for="NuevoGrupo.CursoId">Curso</label>
+                    <select asp-for="NuevoGrupo.CursoId">
+                        @foreach (var curso in Model.Estructura.Cursos)
+                        {
+                            <option value="@curso.Id">@curso.Nombre</option>
+                        }
+                    </select>
+                    <label asp-for="NuevoGrupo.PeriodoAcademicoId">Período</label>
+                    <select asp-for="NuevoGrupo.PeriodoAcademicoId">
+                        @foreach (var periodo in Model.Estructura.Periodos)
+                        {
+                            <option value="@periodo.Id">@periodo.Nombre</option>
+                        }
+                    </select>
+                    <label asp-for="NuevoGrupo.DocenteId">Docente responsable</label>
+                    <select asp-for="NuevoGrupo.DocenteId">
+                        @foreach (var docente in Model.Estructura.Docentes)
+                        {
+                            <option value="@docente.Id">@docente.NombreCompleto · @docente.Especialidad</option>
+                        }
+                    </select>
+                    <div class="form-submit-row">
+                        <button class="button" type="submit">Crear grupo</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><span class="eyebrow">ASOCIAR ALUMNO</span><h2>Sumar a un grupo</h2></div>
+                </div>
+                <form asp-action="InscribirAlumno" method="post" class="form-stack">
+                    <label asp-for="GrupoSeleccionadoId">Grupo</label>
+                    <select asp-for="GrupoSeleccionadoId">
+                        @foreach (var grupo in Model.Estructura.Grupos)
+                        {
+                            <option value="@grupo.Id">@grupo.Nombre · @grupo.Docente</option>
+                        }
+                    </select>
+                    <label asp-for="NuevaInscripcion.AlumnoId">Alumno</label>
+                    <select asp-for="NuevaInscripcion.AlumnoId">
+                        @foreach (var alumno in Model.Estructura.Alumnos)
+                        {
+                            var etiquetaAlumno = $"{alumno.NombreCompleto} · @{alumno.NombreUsuario}";
+                            <option value="@alumno.Id">@etiquetaAlumno</option>
+                        }
+                    </select>
+                    <div class="form-submit-row">
+                        <button class="button" type="submit">Asociar alumno</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <section class="panel">
+            <div class="panel-heading">
+                <div><span class="eyebrow">GRUPOS ACTIVOS</span><h2>Distribución actual</h2></div>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Grupo</th><th>Curso</th><th>Período</th><th>Docente</th><th>Alumnos</th></tr></thead>
+                    <tbody>
+                    @if (Model.Estructura.Grupos.Count == 0)
+                    {
+                        <tr><td colspan="5" class="table-empty">Todavía no hay grupos.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var grupo in Model.Estructura.Grupos)
+                        {
+                            <tr><td><strong>@grupo.Nombre</strong></td><td>@grupo.Curso</td><td>@grupo.Periodo</td><td>@grupo.Docente</td><td>@grupo.CantidadAlumnos</td></tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>

@@ -1,0 +1,86 @@
+@model AdminPropuestasEjerciciosViewModel
+@{ ViewData["Title"] = "Propuestas de ejercicios"; }
+
+<section class="admin-hero compact">
+    <div class="container">
+        <div>
+            <span class="eyebrow light">CURADURÍA DE CONTENIDO</span>
+            <h1>Propuestas docentes</h1>
+            <p>Revisá la coherencia académica antes de publicar contenido en el recorrido general.</p>
+        </div>
+        <a class="button button-outline-light" asp-action="Index">Volver</a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="teacher-section-heading">
+            <div>
+                <span class="eyebrow">BANDEJA DE REVISIÓN</span>
+                <h2>@Model.Pendientes pendientes</h2>
+            </div>
+        </div>
+
+        @if (Model.Propuestas.Count == 0)
+        {
+            <div class="panel empty-state"><h2>No hay propuestas todavía</h2></div>
+        }
+        else
+        {
+            <div class="admin-proposal-grid">
+                @foreach (var propuesta in Model.Propuestas)
+                {
+                    <article class="admin-proposal-card state-@propuesta.Estado.ToLowerInvariant()">
+                        <header>
+                            <div>
+                                <span>@propuesta.Tema · @propuesta.Dificultad</span>
+                                <h2>@propuesta.Titulo</h2>
+                                <small>@propuesta.Docente · @propuesta.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</small>
+                            </div>
+                            <strong class="status-pill">@propuesta.Estado</strong>
+                        </header>
+
+                        <div class="proposal-detail">
+                            <h3>Consigna</h3>
+                            <p>@propuesta.Consigna</p>
+                            <h3>Criterio principal</h3>
+                            <p>@propuesta.CriterioPrincipal</p>
+                            @if (!string.IsNullOrWhiteSpace(propuesta.FundamentoPedagogico))
+                            {
+                                <h3>Fundamento pedagógico</h3>
+                                <p>@propuesta.FundamentoPedagogico</p>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(propuesta.OrientacionPista))
+                            {
+                                <h3>Pista sugerida</h3>
+                                <p>@propuesta.OrientacionPista</p>
+                            }
+                            <pre><code>@propuesta.CodigoInicial</code></pre>
+                        </div>
+
+                        @if (propuesta.Estado is "Enviada" or "EnRevision" or "RequiereAjustes")
+                        {
+                            <form asp-action="RevisarPropuesta" method="post" class="review-form">
+                                <input type="hidden" name="propuestaId" value="@propuesta.Id" />
+                                <label for="obs-@propuesta.Id">Comentario de revisión</label>
+                                <textarea id="obs-@propuesta.Id" name="observacion" rows="3" placeholder="Obligatorio para pedir ajustes o rechazar."></textarea>
+                                <div class="review-actions">
+                                    <button class="button" name="decision" value="aprobar" type="submit">Aprobar y publicar</button>
+                                    <button class="button button-outline" name="decision" value="ajustes" type="submit">Pedir ajustes</button>
+                                    <button class="button button-danger-outline" name="decision" value="rechazar" type="submit">Rechazar</button>
+                                </div>
+                            </form>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(propuesta.ObservacionRevision))
+                        {
+                            <div class="review-note">
+                                <strong>Decisión registrada</strong>
+                                <p>@propuesta.ObservacionRevision</p>
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,3 @@
+@model ErrorViewModel
+@{ ViewData["Title"] = "Error"; }
+<section class="state-page"><div class="state-card"><span class="state-code">500</span><h1>No pudimos completar la operación</h1><p>Intentá nuevamente en unos segundos. Si el problema continúa, regresá al inicio y repetí la operación.</p>@if(Model.ShowRequestId){<small>Referencia: @Model.RequestId</small>}<a class="button" asp-controller="Home" asp-action="Index">Ir al inicio</a></div></section>

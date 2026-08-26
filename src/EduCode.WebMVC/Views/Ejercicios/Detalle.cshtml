@@ -1,0 +1,160 @@
+@model ResolverEjercicioViewModel
+@{
+    ViewData["Title"] = Model.Ejercicio.Titulo;
+    bool vistaDocente = Context.Session.GetString("Rol")?.Equals(
+        "Docente",
+        StringComparison.OrdinalIgnoreCase) == true;
+    string nombreTemaVolver = string.IsNullOrWhiteSpace(Model.Ejercicio.TemaNombre)
+        ? "catálogo"
+        : Model.Ejercicio.TemaNombre;
+
+    ViewData["EduCodeRobotContext"] = "practice";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+
+<section class="workspace-header">
+    <div class="container">
+        <div>
+            <a class="back-link light-link workspace-back-link"
+               asp-controller="Temas"
+               asp-action="Detalle"
+               asp-route-id="@Model.Ejercicio.TemaId"
+               asp-route-nombre="@Model.Ejercicio.TemaNombre">← Volver a @nombreTemaVolver</a>
+            <span class="eyebrow light">@Model.Ejercicio.Lenguaje · @Model.Ejercicio.Dificultad</span>
+            <h1>@Model.Ejercicio.Titulo</h1>
+        </div>
+        <div class="workspace-score">
+            @if (vistaDocente)
+            {
+                <span>Vista docente</span>
+                <strong>Previsualización</strong>
+                <small>Sin envío ni registro de intentos</small>
+            }
+            else
+            {
+                <span>Para aprobar</span>
+                <strong>@Model.Ejercicio.PuntajeMinimoAprobacion / @Model.Ejercicio.PuntajeMaximo</strong>
+                <small>Intento #@(Model.Ejercicio.CantidadIntentosRealizados + 1)</small>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="workspace">
+    <div class="container workspace-grid">
+        <aside class="instruction-panel compact-instructions">
+            <div class="instruction-scroll">
+                <span class="section-label">CONSIGNA</span>
+                <p class="consigna">@Model.Ejercicio.Consigna</p>
+
+                <div class="didactic-note compact-note">
+                    <strong>Enfocate en el resultado</strong>
+                    <p>Una solución directa y una equivalente con variables auxiliares reciben el mismo puntaje cuando ambas son correctas.</p>
+                </div>
+
+                <div class="practice-robot-card">
+                    <partial name="_EduCodeRobot" />
+                </div>
+
+                @if (Model.PistaActual is not null)
+                {
+                    <div class="hint-box">
+                        <div>
+                            <span>PISTA NIVEL @Model.PistaActual.Nivel</span>
+                            <small>Orientación progresiva</small>
+                        </div>
+                        <p>@Model.PistaActual.Contenido</p>
+                    </div>
+                }
+
+                <details class="criteria-details">
+                    <summary>Ver criterios de evaluación</summary>
+                    <div class="criteria-box compact-criteria">
+                        <ul>
+                            @foreach (var criterio in Model.Ejercicio.Criterios)
+                            {
+                                <li>
+                                    <span>✓</span>
+                                    <div>
+                                        @criterio.Descripcion
+                                        <small>
+                                            @criterio.Peso.ToString("0.##")% del puntaje
+                                            @if (criterio.Obligatorio)
+                                            {
+                                                <text> · obligatorio (mínimo @criterio.PorcentajeMinimoObligatorio%)</text>
+                                            }
+                                        </small>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </details>
+            </div>
+
+            @if (!vistaDocente)
+            {
+                <div class="instruction-actions">
+                    <a class="button button-outline button-block @(Model.Ejercicio.PermiteSolicitarPista ? "" : "disabled")"
+                       asp-action="Pista"
+                       asp-route-id="@Model.Ejercicio.Id"
+                       asp-route-nivelActual="@Model.NivelPistaActual">
+                        Solicitar una pista
+                    </a>
+                    <a class="text-link centered-link"
+                       asp-action="Historial"
+                       asp-route-id="@Model.Ejercicio.Id">
+                        Ver intentos anteriores
+                    </a>
+                </div>
+            }
+        </aside>
+
+        <section class="editor-panel">
+            @if (vistaDocente)
+            {
+                <div class="teacher-preview-banner">
+                    <strong>Previsualización del contenido</strong>
+                    <p>Podés recorrer la consigna, el código inicial y los criterios tal como los verá el alumno. Esta vista no permite enviar soluciones ni consultar su historial.</p>
+                </div>
+            }
+            <form asp-action="Resolver" method="post" id="solutionForm" data-ai-form class="@(vistaDocente ? "teacher-readonly-editor" : "")">
+                <input type="hidden" name="ejercicioId" value="@Model.Ejercicio.Id" />
+                <input type="hidden" name="tiempoResolucionSegundos" id="elapsedSeconds" value="0" />
+
+                <div class="editor-toolbar">
+                    <div>
+                        <span class="file-dot"></span>
+                        <strong>solucion.js</strong>
+                        <small>JavaScript</small>
+                    </div>
+                    <div>
+                        <span id="timer">00:00</span>
+                        <button type="button" class="toolbar-button" data-reset-code>Restablecer</button>
+                    </div>
+                </div>
+
+                <div class="code-editor">
+                    <div class="line-numbers" data-lines></div>
+                    <textarea name="codigo"
+                              id="codeInput"
+                              spellcheck="false"
+                              readonly="@(vistaDocente ? "readonly" : null)"
+                              data-initial="@Model.Ejercicio.CodigoInicial">@Model.Codigo</textarea>
+                </div>
+
+                <div class="editor-footer">
+                    <div>
+                        <span class="autosave-dot"></span>
+                        @(vistaDocente ? "Vista de catálogo · sin evaluación" : "Evaluación local inmediata · explicación IA opcional")
+                    </div>
+                    @if (!vistaDocente)
+                    {
+                        <button class="button" type="submit">Evaluar solución →</button>
+                    }
+                </div>
+            </form>
+
+            <div asp-validation-summary="All" class="validation-summary workspace-validation"></div>
+        </section>
+    </div>
+</section>

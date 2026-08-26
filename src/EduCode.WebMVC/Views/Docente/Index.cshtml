@@ -1,0 +1,101 @@
+@model DocenteDashboardViewModel
+@{ ViewData["Title"] = "Mirada docente"; }
+<section class="teacher-hero">
+    <div class="container teacher-hero-grid">
+        <div>
+            <span class="eyebrow light">MIRADA DOCENTE · SIN PRESIÓN ACADÉMICA</span>
+            <h1>Hola, @Model.NombreDocente.</h1>
+            <p>Este panel muestra cómo practican tus grupos para ayudarte a interpretar el reflejo de las clases. No permite corregir, calificar ni modificar el rendimiento del alumno.</p>
+        </div>
+        <div class="teacher-hero-actions">
+            <a class="button button-light" asp-action="Propuestas">Sugerir ejercicio</a>
+            <a class="button button-outline-light" asp-action="ExportarActividad">Exportar actividad CSV</a>
+        </div>
+    </div>
+</section>
+<section class="section teacher-dashboard">
+    <div class="container">
+        <div class="stats-grid teacher-stats">
+            <article class="stat-card"><small>GRUPOS</small><strong>@Model.Panel.TotalGrupos</strong><p>Espacios académicos asignados.</p></article>
+            <article class="stat-card"><small>ESTUDIANTES</small><strong>@Model.Panel.TotalAlumnos</strong><p>Alumnos asociados a tus grupos.</p></article>
+            <article class="stat-card"><small>ACTIVOS · 7 DÍAS</small><strong>@Model.Panel.AlumnosActivosUltimos7Dias</strong><p>Practicaron durante la última semana.</p></article>
+            <article class="stat-card"><small>INTENTOS · 30 DÍAS</small><strong>@Model.Panel.IntentosUltimos30Dias</strong><p>Actividad reciente registrada.</p></article>
+            <article class="stat-card"><small>APROBACIÓN</small><strong>@Model.Panel.TasaAprobacionUltimos30Dias.ToString("0.0")%</strong><p>Resultado automático de los intentos evaluados.</p></article>
+            <article class="stat-card"><small>PUNTAJE PROMEDIO</small><strong>@Model.Panel.PuntajePromedioUltimos30Dias.ToString("0.0")</strong><p>Referencia global, no calificación docente.</p></article>
+        </div>
+
+        <article class="teacher-insight-card">
+            <span aria-hidden="true">◉</span>
+            <div><small>LECTURA AUTOMÁTICA DEL GRUPO</small><h2>@Model.Panel.LecturaGeneral</h2><p>La interpretación se construye a partir de actividad agregada. Usala como señal para orientar la clase, no como mecanismo de evaluación individual.</p></div>
+        </article>
+
+        <div class="teacher-section-heading">
+            <div><span class="eyebrow">PANORAMA POR GRUPO</span><h2>Cómo se está moviendo la práctica</h2></div>
+        </div>
+        @if (Model.Panel.Grupos.Count == 0)
+        {
+            <div class="empty-state panel"><h2>Todavía no tenés grupos asignados</h2><p>La administración puede crear un grupo y asociarlo a tu cuenta docente.</p></div>
+        }
+        else
+        {
+            <div class="teacher-group-grid">
+                @foreach (var grupo in Model.Panel.Grupos)
+                {
+                    <article class="teacher-group-card">
+                        <header><div><small>@grupo.Curso · @grupo.Periodo</small><h3>@grupo.Nombre</h3></div><span>@grupo.Alumnos alumnos</span></header>
+                        <div class="teacher-group-metrics">
+                            <div><strong>@grupo.ActivosUltimos7Dias</strong><small>activos esta semana</small></div>
+                            <div><strong>@grupo.IntentosUltimos30Dias</strong><small>intentos en 30 días</small></div>
+                            <div><strong>@grupo.TasaAprobacion.ToString("0.0")%</strong><small>aprobación automática</small></div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+        <section class="panel teacher-panel">
+            <div class="panel-heading"><div><span class="eyebrow">SEÑALES POR CONTENIDO</span><h2>Temas que conviene reforzar</h2></div><p>Ordenados por dificultad observada durante los últimos 30 días.</p></div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Tema</th><th>Alumnos</th><th>Intentos</th><th>Aprobación</th><th>Promedio</th><th>Lectura</th></tr></thead>
+                    <tbody>
+                    @if (Model.Panel.Temas.Count == 0)
+                    {
+                        <tr><td colspan="6" class="table-empty">Todavía no hay suficiente actividad para construir métricas por tema.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var tema in Model.Panel.Temas)
+                        {
+                            <tr><td><strong>@tema.Tema</strong></td><td>@tema.AlumnosQuePracticaron</td><td>@tema.Intentos</td><td>@tema.TasaAprobacion.ToString("0.0")%</td><td>@tema.PuntajePromedio.ToString("0.0")</td><td><span class="signal-pill">@tema.Senal</span></td></tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel teacher-panel">
+            <div class="panel-heading"><div><span class="eyebrow">ACTIVIDAD OBSERVABLE</span><h2>Ritmo de práctica</h2></div><p>Sin acciones de corrección o calificación.</p></div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Alumno</th><th>Grupo</th><th>Última actividad</th><th>Intentos 30 días</th><th>Ejercicios aprobados</th><th>Ritmo</th></tr></thead>
+                    <tbody>
+                    @if (Model.Panel.ActividadAlumnos.Count == 0)
+                    {
+                        <tr><td colspan="6" class="table-empty">No hay alumnos asociados a los grupos.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var alumno in Model.Panel.ActividadAlumnos)
+                        {
+                            var usuarioVisible = $"@{alumno.NombreUsuario}";
+                            <tr><td><strong>@alumno.Alumno</strong><small class="table-subline">@usuarioVisible</small></td><td>@alumno.Grupo</td><td>@(alumno.UltimaActividad?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "Sin actividad")</td><td>@alumno.IntentosUltimos30Dias</td><td>@alumno.EjerciciosAprobados</td><td><span class="rhythm-pill">@alumno.Ritmo</span></td></tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>

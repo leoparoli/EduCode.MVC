@@ -1,0 +1,22 @@
+@model TemasViewModel
+@{ ViewData["Title"] = "Recorrido"; 
+    ViewData["EduCodeRobotContext"] = "practice";
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+<section class="page-hero">
+    <div class="container page-hero-grid page-hero-grid-with-robot">
+        <div>
+            <span class="eyebrow light">RECORRIDO FORMATIVO</span>
+            <h1>@Model.Curso.Nombre</h1>
+            <p>@Model.Curso.Descripcion</p>
+        </div>
+        <div class="educode-robot-slot page-hero-robot-slot">
+            <partial name="_EduCodeRobot" />
+        </div>
+        <div class="hero-summary">
+            <strong>@Model.Temas.Sum(t=>t.EjerciciosCompletados)</strong>
+            <span>ejercicios completados</span>
+            <small>de @Model.Temas.Sum(t=>t.CantidadEjercicios) disponibles</small>
+        </div>
+    </div>
+</section>
+<section class="section"><div class="container"><div class="section-heading"><span class="eyebrow">MÓDULOS</span><h2>Avanzá de la base al modelado</h2><p>Cada tema agrupa ejercicios con dificultad gradual. Podés revisar tu estado antes de entrar.</p></div><div class="topic-grid">@foreach(var tema in Model.Temas){string estado=tema.PorcentajeProgreso>=100?"Completado":tema.PorcentajeProgreso>0?"En progreso":"Disponible";<article class="topic-card @(tema.Bloqueado?"locked":"")"><div class="topic-top"><span class="topic-number">MÓDULO @tema.Orden.ToString("00")</span><span class="status-pill">@estado</span></div><div class="topic-icon">@(tema.Orden switch {1=>"x+",2=>"?",3=>"↻",4=>"Aa",5=>"ƒ",_=>"{}"})</div><h3>@tema.Nombre</h3><p>@tema.Descripcion</p><div class="topic-meta"><span>@tema.EjerciciosCompletados / @tema.CantidadEjercicios ejercicios</span><strong>@tema.PorcentajeProgreso.ToString("0")%</strong></div><div class="progress"><i style="width:@tema.PorcentajeProgreso%"></i></div>@if(!tema.Bloqueado){<a class="card-link" asp-action="Detalle" asp-route-id="@tema.Id" asp-route-nombre="@tema.Nombre" asp-route-descripcion="@tema.Descripcion">Abrir módulo <span>→</span></a>}else{<span class="card-link disabled">Completá el módulo anterior</span>}</article>}</div></div></section>

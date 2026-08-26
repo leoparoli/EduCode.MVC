@@ -1,0 +1,203 @@
+@model ComunidadViewModel
+@{
+    ViewData["Title"] = "Ranking y logros";
+    var obtenidas = Model.Resumen.Insignias.Where(i => i.Obtenido).ToList();
+    decimal avancePuntaje = Model.Resumen.PuntajeMaximoDisponible <= 0
+        ? 0
+        : Math.Round(Model.Resumen.PuntajeRanking * 100m / Model.Resumen.PuntajeMaximoDisponible, 1);
+    string avancePuntajeCss = Math.Clamp(avancePuntaje, 0, 100)
+        .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    ViewData["EduCodeRobotContext"] = "ranking";
+    ViewData["EduCodeRobotInitialAnimation"] = "celebrar";}
+
+<section class="community-hero">
+    <div class="container community-hero-grid community-hero-grid-with-robot">
+        <div>
+            <span class="eyebrow light">PROGRESO · CONSTANCIA · COMUNIDAD</span>
+            <h1>Tu código también cuenta una historia.</h1>
+            <p>
+                El ranking suma únicamente la mejor nota de cada ejercicio. Reintentar sirve para aprender
+                y mejorar, pero repetir el mismo ejercicio no permite acumular puntos artificialmente.
+            </p>
+        </div>
+        <div class="educode-robot-slot community-robot-slot"><partial name="_EduCodeRobot" /></div>
+        <div class="community-position-card">
+            <span>Tu posición</span>
+            <strong>@(Model.Resumen.PosicionRanking?.ToString() ?? "—")</strong>
+            <small>@(Model.Resumen.VisibleEnRanking ? "ranking general" : "perfil oculto del ranking")</small>
+        </div>
+    </div>
+</section>
+
+<section class="section community-section">
+    <div class="container">
+        <div class="community-stats-grid">
+            <article class="community-stat-card">
+                <span>Puntos de recorrido</span>
+                <strong>@Model.Resumen.PuntajeRanking.ToString("0.##")</strong>
+                <small>de @Model.Resumen.PuntajeMaximoDisponible.ToString("0") posibles</small>
+                <div class="mini-progress"><i style="width:@avancePuntajeCss%"></i></div>
+            </article>
+            <article class="community-stat-card">
+                <span>Promedio personal</span>
+                <strong>@Model.Resumen.PromedioMejoresPuntajes.ToString("0.##")%</strong>
+                <small>sobre tus mejores notas</small>
+            </article>
+            <article class="community-stat-card streak-card">
+                <span>Racha actual</span>
+                <strong>@Model.Resumen.RachaActual.CantidadEjercicios</strong>
+                <small>ejercicios · promedio @Model.Resumen.RachaActual.Promedio.ToString("0.##")%</small>
+            </article>
+            <article class="community-stat-card best-streak-card">
+                <span>Mejor racha</span>
+                <strong>@Model.Resumen.MejorRacha.CantidadEjercicios</strong>
+                <small>ejercicios · promedio @Model.Resumen.MejorRacha.Promedio.ToString("0.##")%</small>
+            </article>
+        </div>
+
+        <div class="community-layout">
+            <section class="ranking-panel">
+                <div class="section-heading compact-heading">
+                    <div>
+                        <span class="eyebrow">RANKING GENERAL</span>
+                        <h2>Mejores recorridos</h2>
+                    </div>
+                    <span class="ranking-rule">Mejor nota por ejercicio</span>
+                </div>
+
+                @if (Model.Resumen.Ranking.Count == 0)
+                {
+                    <div class="empty-state compact-empty">
+                        <h3>El ranking todavía está esperando su primera nota.</h3>
+                        <p>Cuando los alumnos comiencen a resolver ejercicios, aparecerán aquí.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="ranking-table-wrap">
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos.</th>
+                                    <th>Programador</th>
+                                    <th>Puntos</th>
+                                    <th>Promedio</th>
+                                    <th>Aprobados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (PosicionRankingResponse posicion in Model.Resumen.Ranking)
+                                {
+                                    <tr class="@(posicion.EsUsuarioActual ? "is-current-user" : "")">
+                                        <td>
+                                            <span class="rank-number rank-@Math.Min(posicion.Posicion, 4)">
+                                                @(posicion.Posicion <= 3
+                                                    ? (posicion.Posicion switch { 1 => "🥇", 2 => "🥈", _ => "🥉" })
+                                                    : posicion.Posicion.ToString())
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="ranking-user-cell">
+                                                <span class="avatar ranking-avatar avatar-theme-@posicion.AvatarClave">
+                                                    @if (!string.IsNullOrWhiteSpace(posicion.FotoPerfilRuta))
+                                                    {
+                                                        <img src="@posicion.FotoPerfilRuta" alt="Foto de @posicion.NombreVisible" />
+                                                    }
+                                                    else
+                                                    {
+                                                        @AvatarUi.Icono(posicion.AvatarClave)
+                                                    }
+                                                </span>
+                                                <span>
+                                                    <strong>@posicion.NombreVisible</strong>
+                                                    <small>@($"@{posicion.NombreUsuario}")</small>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td><strong>@posicion.PuntajeTotal.ToString("0.##")</strong></td>
+                                        <td>@posicion.Promedio.ToString("0.##")%</td>
+                                        <td>@posicion.EjerciciosAprobados / @posicion.EjerciciosIntentados</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+
+            <aside class="achievement-summary-panel">
+                <span class="eyebrow">TU VITRINA</span>
+                <h2>@obtenidas.Count insignias</h2>
+                <p>Las insignias no modifican la nota. Hacen visible el recorrido que hay detrás.</p>
+                <form class="ranking-visibility-form" asp-action="CambiarVisibilidad" method="post">
+                    <span>
+                        @(Model.Resumen.VisibleEnRanking
+                            ? "Tu perfil participa del ranking general."
+                            : "Tu perfil está oculto; tus notas y logros se conservan.")
+                    </span>
+                    <button type="submit"
+                            name="mostrar"
+                            value="@(Model.Resumen.VisibleEnRanking ? "false" : "true")"
+                            class="ranking-visibility-button">
+                        @(Model.Resumen.VisibleEnRanking
+                            ? "Ocultarme del ranking"
+                            : "Participar del ranking")
+                    </button>
+                </form>
+                <div class="achievement-mini-list">
+                    @foreach (LogroUsuarioResponse logro in obtenidas.Take(4))
+                    {
+                        <div>
+                            <span>@logro.Icono</span>
+                            <p><strong>@logro.Nombre</strong><small>Desbloqueada</small></p>
+                        </div>
+                    }
+                </div>
+                @if (obtenidas.Count == 0)
+                {
+                    <div class="first-achievement-hint">
+                        <span>🌱</span>
+                        <p>Tu primera aprobación desbloquea <strong>NACE UN PROGRAMADOR</strong>.</p>
+                    </div>
+                }
+            </aside>
+        </div>
+
+        <section class="achievements-section">
+            <div class="section-heading compact-heading">
+                <div>
+                    <span class="eyebrow">INSIGNIAS</span>
+                    <h2>Progreso que se puede ver</h2>
+                </div>
+                <span class="achievement-count">@obtenidas.Count / @Model.Resumen.Insignias.Count obtenidas</span>
+            </div>
+
+            <div class="achievements-grid">
+                @foreach (LogroUsuarioResponse logro in Model.Resumen.Insignias)
+                {
+                    <article class="achievement-card @(logro.Obtenido ? "unlocked" : "locked")">
+                        <div class="achievement-icon">@logro.Icono</div>
+                        <div class="achievement-copy">
+                            <span>@(logro.Obtenido ? "DESBLOQUEADA" : "EN PROGRESO")</span>
+                            <h3>@logro.Nombre</h3>
+                            <p>@logro.Descripcion</p>
+                            @if (logro.Obtenido)
+                            {
+                                <small>Obtenida el @(logro.FechaObtencion?.ToLocalTime().ToString("dd/MM/yyyy"))</small>
+                            }
+                            else
+                            {
+                                <div class="achievement-progress-copy">
+                                    <small>@logro.ValorActual / @logro.ValorObjetivo</small>
+                                    <small>@logro.PorcentajeProgreso%</small>
+                                </div>
+                                <div class="mini-progress"><i style="width:@logro.PorcentajeProgreso%"></i></div>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    </div>
+</section>

@@ -1,0 +1,30 @@
+@{
+    string contexto = ViewData["EduCodeRobotContext"]?.ToString() ?? "idle";
+    string animacionInicial = ViewData["EduCodeRobotInitialAnimation"]?.ToString() ?? "idle";
+    string resultado = ViewData["EduCodeRobotOutcome"]?.ToString() ?? "";
+    string modeloUrl = Url.Content("~/models/educode/educode-robot-base.glb") + "?v=3.1.2p2";
+    string manifiestoUrl = Url.Content("~/models/educode/educode-robot.animations.json") + "?v=3.1.2p2";
+}
+<aside class="educode-robot-widget context-@contexto is-booting"
+       data-educode-robot
+       data-context="@contexto"
+       data-initial-animation="@animacionInicial"
+       data-outcome="@resultado"
+       data-model-url="@modeloUrl"
+       data-manifest-url="@manifiestoUrl"
+       role="status"
+       aria-live="polite"
+       aria-label="EDU-02, asistente visual de EduCode">
+    <div class="educode-robot-aura" aria-hidden="true"></div>
+    <canvas class="educode-robot-canvas" data-robot-canvas aria-hidden="true"></canvas>
+    <div class="educode-robot-loading" data-robot-loading>
+        <span class="educode-robot-loading-mark" aria-hidden="true">&lt;/&gt;</span>
+        <small data-robot-status>EDU-02 se está preparando</small>
+    </div>
+    <div class="educode-robot-fallback" data-robot-fallback hidden>
+        <strong aria-hidden="true">&lt;/&gt;</strong>
+        <small>EDU-02 no pudo iniciar</small>
+        <span data-robot-error>La página sigue disponible. Podés reintentar el asistente visual.</span>
+        <button type="button" data-robot-retry>Reintentar</button>
+    </div>
+</aside>

@@ -1,0 +1,315 @@
+@model PerfilViewModel
+@{
+    ViewData["Title"] = "Mi cuenta";
+    bool esAdministrador = Model.Perfil.Rol.Equals("Administrador", StringComparison.OrdinalIgnoreCase);
+    bool esDocente = Model.Perfil.Rol.Equals("Docente", StringComparison.OrdinalIgnoreCase);
+    string iconoActual = AvatarUi.Icono(Model.Perfil.AvatarClave);
+    string usuarioVisible = $"@{Model.Perfil.NombreUsuario}";
+    string estadoCambios = $"{Model.Perfil.CambiosNombreUsuarioDisponibles} de {Model.Perfil.MaximoCambiosNombreUsuario} disponibles";
+    string proximaFechaCambio = Model.Perfil.ProximoCambioNombreUsuarioDisponible.HasValue
+        ? Model.Perfil.ProximoCambioNombreUsuarioDisponible.Value.ToLocalTime().ToString("dd/MM/yyyy")
+        : "la fecha indicada";
+    string controladorRetorno = esAdministrador ? "Administracion" : esDocente ? "Docente" : "Alumno";
+    string accionRetorno = esAdministrador || esDocente ? "Index" : "Dashboard";
+}
+
+<section class="profile-hero">
+    <div class="container profile-hero-grid">
+        <div class="profile-identity">
+            <div class="profile-avatar-xl avatar-theme-@Model.Perfil.AvatarClave" data-profile-preview>
+                @if (!string.IsNullOrWhiteSpace(Model.Perfil.FotoPerfilRuta))
+                {
+                    <img src="@Model.Perfil.FotoPerfilRuta" alt="Foto de perfil de @Model.Perfil.NombreCompleto" data-profile-preview-image />
+                    <span data-profile-preview-fallback hidden>@iconoActual</span>
+                }
+                else
+                {
+                    <img src="" alt="Vista previa de la foto de perfil" data-profile-preview-image hidden />
+                    <span data-profile-preview-fallback>@iconoActual</span>
+                }
+            </div>
+            <div>
+                <span class="eyebrow light">MI CUENTA</span>
+                <h1>@Model.Perfil.NombreCompleto</h1>
+                <p>@usuarioVisible · @Model.Perfil.Rol</p>
+            </div>
+        </div>
+        <div class="profile-hero-note">
+            @if (esAdministrador)
+            {
+                <strong>Identidad administrativa protegida</strong>
+                <p>Podés personalizar el avatar o la foto. El nombre de usuario permanece fijo para conservar la trazabilidad de las acciones administrativas.</p>
+            }
+            else
+            {
+                <strong>Tu identidad dentro de EduCode</strong>
+                <p>Personalizá tu nombre de usuario, avatar o foto. Tu nombre y apellido permanecen asociados a los datos con los que registraste la cuenta.</p>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section profile-section">
+    <div class="container profile-layout @(esAdministrador ? "profile-layout-admin" : "")">
+        <div class="profile-main-column">
+            <section class="panel profile-panel">
+                <div class="panel-heading profile-panel-heading">
+                    <div>
+                        <span class="eyebrow">PERSONALIZACIÓN</span>
+                        <h2>Editar cuenta</h2>
+                        <p>@(esAdministrador
+                            ? "Personalizá la imagen de la cuenta sin alterar su identidad administrativa."
+                            : "Elegí cómo querés aparecer dentro de la plataforma sin modificar tus datos personales.")</p>
+                    </div>
+                    <span class="profile-email-chip">@Model.Perfil.Email</span>
+                </div>
+
+                <div class="registered-data-card" aria-label="Datos de registro">
+                    <div>
+                        <span>Nombre y apellido</span>
+                        <strong>@Model.Perfil.NombreCompleto</strong>
+                        <small>Dato de registro no editable desde la cuenta.</small>
+                    </div>
+                    <div>
+                        <span>Correo electrónico</span>
+                        <strong>@Model.Perfil.Email</strong>
+                        <small>Se utiliza para identificar y proteger tu acceso.</small>
+                    </div>
+                </div>
+
+                <form asp-action="Actualizar" method="post" enctype="multipart/form-data" class="profile-form" data-loading-message="Actualizando tu cuenta…">
+                    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                    @if (esAdministrador)
+                    {
+                        <input asp-for="PerfilForm.NombreUsuario" type="hidden" />
+                        <div class="admin-identity-lock" role="note">
+                            <span aria-hidden="true">🔒</span>
+                            <div>
+                                <strong>Nombre de usuario protegido</strong>
+                                <p><b>@usuarioVisible</b> identifica de forma estable las acciones registradas en auditoría y no puede modificarse desde una cuenta administradora.</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="field username-field-block">
+                            <div class="field-heading-row">
+                                <label asp-for="PerfilForm.NombreUsuario"></label>
+                                <span class="username-change-badge @(Model.Perfil.PuedeCambiarNombreUsuario ? "available" : "locked")">@estadoCambios</span>
+                            </div>
+                            <div class="username-input-wrap @(Model.Perfil.PuedeCambiarNombreUsuario ? "" : "is-locked")">
+                                <span>@@</span>
+                                @if (Model.Perfil.PuedeCambiarNombreUsuario)
+                                {
+                                    <input asp-for="PerfilForm.NombreUsuario" autocomplete="username" />
+                                }
+                                else
+                                {
+                                    <input asp-for="PerfilForm.NombreUsuario" autocomplete="username" readonly aria-readonly="true" />
+                                }
+                            </div>
+                            @if (Model.Perfil.PuedeCambiarNombreUsuario)
+                            {
+                                <small>Podés cambiarlo hasta @Model.Perfil.MaximoCambiosNombreUsuario veces dentro de un período móvil de @Model.Perfil.DiasVentanaCambiosNombreUsuario días. Solo se consume un cambio cuando elegís un nombre distinto.</small>
+                            }
+                            else
+                            {
+                                <small class="username-limit-note">Alcanzaste el límite temporal. Podrás volver a modificarlo a partir del <strong>@proximaFechaCambio</strong>. El avatar y la foto siguen disponibles.</small>
+                            }
+                            <span asp-validation-for="PerfilForm.NombreUsuario"></span>
+                        </div>
+                    }
+
+                    <fieldset class="avatar-fieldset">
+                        <legend>Elegí un avatar</legend>
+                        <p>Quedará como imagen principal cuando no uses una foto personalizada.</p>
+                        <div class="avatar-picker" data-avatar-picker>
+                            @foreach (AvatarDisponibleResponse avatar in Model.Perfil.AvataresDisponibles)
+                            {
+                                string idAvatar = $"avatar-{avatar.Clave}";
+                                <div class="avatar-choice">
+                                    <input asp-for="PerfilForm.AvatarClave" type="radio" value="@avatar.Clave" id="@idAvatar" data-avatar-icon="@avatar.Icono" />
+                                    <label for="@idAvatar" class="avatar-theme-@avatar.Clave">
+                                        <span>@avatar.Icono</span>
+                                        <small>@avatar.Nombre</small>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="PerfilForm.AvatarClave"></span>
+                    </fieldset>
+
+                    <div class="profile-photo-field">
+                        <div>
+                            <label asp-for="PerfilForm.FotoPerfil"></label>
+                            <p>JPG, PNG o WebP. Tamaño máximo: 2 MB.</p>
+                        </div>
+                        <label class="file-upload-button">
+                            <span>Seleccionar imagen</span>
+                            <input asp-for="PerfilForm.FotoPerfil" type="file" accept="image/jpeg,image/png,image/webp" data-profile-photo-input />
+                        </label>
+                        <span class="file-name" data-profile-file-name>Ningún archivo seleccionado</span>
+                        <span asp-validation-for="PerfilForm.FotoPerfil"></span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Perfil.FotoPerfilRuta))
+                    {
+                        <label class="remove-photo-option">
+                            <input asp-for="PerfilForm.EliminarFotoPerfil" data-remove-profile-photo />
+                            <span>
+                                <strong>Quitar la foto actual</strong>
+                                <small>Volverás a usar el avatar seleccionado.</small>
+                            </span>
+                        </label>
+                    }
+
+                    <div class="profile-form-actions">
+                        <button class="button" type="submit">Guardar cambios</button>
+                        <a class="button button-outline" asp-controller="@controladorRetorno" asp-action="@accionRetorno">Volver al panel</a>
+                    </div>
+                </form>
+            </section>
+
+            @if (!esAdministrador)
+            {
+                <section class="panel feedback-panel" id="enviar-opinion">
+                    <div class="panel-heading profile-panel-heading">
+                        <div>
+                            <span class="eyebrow">MEJORA CONTINUA</span>
+                            <h2>Enviar una opinión</h2>
+                            <p>Contanos qué funcionó bien, qué te costó o qué deberíamos mejorar.</p>
+                        </div>
+                        <span class="feedback-private-chip">Revisión interna</span>
+                    </div>
+
+                    <form asp-action="EnviarOpinion" method="post" class="feedback-form" data-loading-message="Enviando tu opinión…">
+                        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                        <div class="form-grid two-columns feedback-top-grid">
+                            <div class="field">
+                                <label asp-for="OpinionForm.Categoria"></label>
+                                <select asp-for="OpinionForm.Categoria">
+                                    <option value="1">Experiencia general</option>
+                                    <option value="2">Tutor IA</option>
+                                    <option value="3">Ejercicios y correcciones</option>
+                                    <option value="4">Diseño y accesibilidad</option>
+                                    <option value="5">Reporte de error</option>
+                                    <option value="6">Sugerencia</option>
+                                </select>
+                                <span asp-validation-for="OpinionForm.Categoria"></span>
+                            </div>
+
+                            <div class="field rating-field">
+                                <span class="field-label">Calificación</span>
+                                <div class="star-rating" aria-label="Calificación de 1 a 5 estrellas">
+                                    @for (int valor = 5; valor >= 1; valor--)
+                                    {
+                                        string id = $"rating-{valor}";
+                                        <input asp-for="OpinionForm.Calificacion" type="radio" value="@valor" id="@id" />
+                                        <label for="@id" title="@valor estrellas">★</label>
+                                    }
+                                </div>
+                                <span asp-validation-for="OpinionForm.Calificacion"></span>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label asp-for="OpinionForm.Comentario"></label>
+                            <textarea asp-for="OpinionForm.Comentario" rows="6" maxlength="1200" placeholder="Ejemplo: El tutor me ayudó a detectar el error, pero me gustaría que explique mejor por qué ocurre…" data-feedback-text></textarea>
+                            <div class="field-support-row">
+                                <small>Mínimo 20 caracteres. No incluyas contraseñas ni datos sensibles.</small>
+                                <small><span data-feedback-count>0</span>/1200</small>
+                            </div>
+                            <span asp-validation-for="OpinionForm.Comentario"></span>
+                        </div>
+
+                        <label class="publication-consent">
+                            <input asp-for="OpinionForm.AutorizaPublicacion" />
+                            <span>
+                                <strong>Puede mostrarse como reseña pública</strong>
+                                <small>Solo se publicará si EduCode la selecciona. Siempre podrás identificarla como propia desde tu cuenta.</small>
+                            </span>
+                        </label>
+
+                        <button class="button" type="submit">Enviar opinión</button>
+                    </form>
+                </section>
+            }
+        </div>
+
+        <aside class="profile-side-column">
+            <section class="profile-summary-card">
+                <span class="eyebrow">TU PERFIL</span>
+                <div class="profile-summary-avatar avatar-theme-@Model.Perfil.AvatarClave">
+                    @if (!string.IsNullOrWhiteSpace(Model.Perfil.FotoPerfilRuta))
+                    {
+                        <img src="@Model.Perfil.FotoPerfilRuta" alt="Foto de @Model.Perfil.NombreCompleto" />
+                    }
+                    else
+                    {
+                        <span>@iconoActual</span>
+                    }
+                </div>
+                <h2>@Model.Perfil.NombreCompleto</h2>
+                <p>@usuarioVisible</p>
+                <dl>
+                    <div><dt>Rol</dt><dd>@Model.Perfil.Rol</dd></div>
+                    @if (esAdministrador)
+                    {
+                        <div><dt>Identidad</dt><dd>Protegida</dd></div>
+                    }
+                    else
+                    {
+                        <div><dt>Cambios de usuario</dt><dd>@estadoCambios</dd></div>
+                        <div><dt>Opiniones enviadas</dt><dd>@Model.Opiniones.Count</dd></div>
+                    }
+                    <div><dt>Correo</dt><dd>@Model.Perfil.Email</dd></div>
+                </dl>
+            </section>
+
+            @if (!esAdministrador)
+            {
+                <section class="opinions-history-card">
+                    <div class="opinions-history-heading">
+                        <div>
+                            <span class="eyebrow">SEGUIMIENTO</span>
+                            <h2>Tus opiniones</h2>
+                        </div>
+                        <span>@Model.Opiniones.Count</span>
+                    </div>
+
+                    @if (Model.Opiniones.Count == 0)
+                    {
+                        <div class="empty-opinions">
+                            <span>💬</span>
+                            <strong>Todavía no enviaste opiniones.</strong>
+                            <p>Tu experiencia puede ayudar a decidir las próximas mejoras.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="opinions-history-list">
+                            @foreach (OpinionUsuarioResponse opinion in Model.Opiniones.Take(6))
+                            {
+                                <article>
+                                    <div class="opinion-history-top">
+                                        <span class="opinion-status status-@opinion.Estado">@opinion.EstadoTexto</span>
+                                        <time datetime="@opinion.FechaCreacion.ToString("O")">@opinion.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</time>
+                                    </div>
+                                    <strong>@opinion.CategoriaTexto</strong>
+                                    <div class="opinion-stars" aria-label="@opinion.Calificacion de 5 estrellas">@(new string('★', opinion.Calificacion))@(new string('☆', 5 - opinion.Calificacion))</div>
+                                    <p>@opinion.Comentario</p>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </aside>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/perfil.js" asp-append-version="true"></script>
+}

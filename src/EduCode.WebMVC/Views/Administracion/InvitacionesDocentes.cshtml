@@ -1,0 +1,96 @@
+@model AdminInvitacionesDocentesViewModel
+@{ ViewData["Title"] = "Invitaciones docentes"; }
+
+<section class="admin-hero compact">
+    <div class="container">
+        <div>
+            <span class="eyebrow light">ACCESOS CONTROLADOS</span>
+            <h1>Invitaciones docentes</h1>
+            <p>Los docentes se registran con un código temporal. Nunca pueden autorregistrarse como administradores.</p>
+        </div>
+        <a class="button button-outline-light" asp-action="Index">Volver</a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container admin-two-column">
+        <section class="panel">
+            <div class="panel-heading">
+                <div>
+                    <span class="eyebrow">NUEVA INVITACIÓN</span>
+                    <h2>Generar acceso</h2>
+                </div>
+            </div>
+            <form asp-action="CrearInvitacionDocente" method="post" class="form-stack">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <label asp-for="Formulario.Especialidad"></label>
+                <input asp-for="Formulario.Especialidad" />
+                <span asp-validation-for="Formulario.Especialidad"></span>
+
+                <label asp-for="Formulario.EmailPermitido"></label>
+                <input asp-for="Formulario.EmailPermitido" placeholder="Opcional: docente@institucion.edu" />
+                <span asp-validation-for="Formulario.EmailPermitido"></span>
+
+                <label asp-for="Formulario.DiasVigencia"></label>
+                <input asp-for="Formulario.DiasVigencia" type="number" min="1" max="90" />
+                <span asp-validation-for="Formulario.DiasVigencia"></span>
+
+                <div class="security-note">
+                    <strong>Seguridad por diseño</strong>
+                    <p>El código es de un solo uso, puede restringirse a un correo, vence automáticamente y puede revocarse mientras siga disponible.</p>
+                </div>
+                <div class="form-submit-row">
+                    <button class="button" type="submit">Generar invitación</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="panel-heading">
+                <div>
+                    <span class="eyebrow">HISTORIAL</span>
+                    <h2>@Model.Disponibles disponibles</h2>
+                </div>
+            </div>
+            <div class="invitation-list">
+                @if (Model.Invitaciones.Count == 0)
+                {
+                    <div class="empty-state"><p>No hay invitaciones generadas.</p></div>
+                }
+                else
+                {
+                    @foreach (var invitacion in Model.Invitaciones)
+                    {
+                        <article class="invitation-card">
+                            <header>
+                                <code>@invitacion.Codigo</code>
+                                <span class="status-pill state-@invitacion.Estado.ToLowerInvariant()">@invitacion.Estado</span>
+                            </header>
+                            <strong>@invitacion.Especialidad</strong>
+                            <p>@invitacion.EmailPermitido</p>
+                            <small>Vence: @invitacion.FechaExpiracion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                            @if (!string.IsNullOrWhiteSpace(invitacion.UtilizadaPor))
+                            {
+                                <small>Utilizada por @invitacion.UtilizadaPor</small>
+                            }
+                            @if (invitacion.Estado == "Disponible")
+                            {
+                                <div class="invitation-actions">
+                                    <a asp-controller="Auth"
+                                       asp-action="RegistroDocente"
+                                       asp-route-codigo="@invitacion.Codigo"
+                                       target="_blank">Abrir registro docente →</a>
+                                    <form asp-action="RevocarInvitacionDocente" method="post">
+                                        <input type="hidden" name="invitacionId" value="@invitacion.Id" />
+                                        <button class="button button-sm button-danger-outline" type="submit">Revocar</button>
+                                    </form>
+                                </div>
+                            }
+                        </article>
+                    }
+                }
+            </div>
+        </section>
+    </div>
+</section>
