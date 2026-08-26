@@ -103,3 +103,5 @@ El historial continúa siendo local a la pestaña y al navegador. No se sincroni
 - Los errores de conexión y demora indican únicamente qué ocurrió y qué acción puede realizar el alumno.
 - Los detalles técnicos permanecen disponibles en logs para el desarrollador.
 - El cargador general ahora muestra `Procesando tu solicitud…`.
+
+Deploy autom�tico Azure Container Apps configurado.
