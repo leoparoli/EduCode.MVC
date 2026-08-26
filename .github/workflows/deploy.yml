@@ -17,6 +17,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: |
+          dotnet restore src/EduCode.WebMVC/EduCode.WebMVC.csproj
+
+      - name: Publish MVC
+        run: |
+          dotnet publish src/EduCode.WebMVC/EduCode.WebMVC.csproj \
+            -c Release \
+            -o publish \
+            --no-restore
+
       - name: Azure Login
         uses: azure/login@v2
         with:
