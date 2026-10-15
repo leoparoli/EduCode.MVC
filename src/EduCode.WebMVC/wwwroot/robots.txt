@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /Alumno/
+Disallow: /Docente/
+Disallow: /Administracion/
+Disallow: /Perfil/
+Disallow: /Auth/
+
+Sitemap: https://educode-webmvc.agreeablesky-7eb59cb9.centralus.azurecontainerapps.io/sitemap.xml
