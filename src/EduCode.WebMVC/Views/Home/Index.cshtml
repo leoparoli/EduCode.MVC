@@ -3,14 +3,15 @@
     bool usuarioAutenticado = Context.Session.GetInt32("UsuarioId").HasValue;
 
     ViewData["EduCodeRobotContext"] = "home";
-    ViewData["EduCodeRobotInitialAnimation"] = "idle";}
+    ViewData["EduCodeRobotInitialAnimation"] = "idle";
+}
 
 <section class="hero home-hero-v296">
     <div class="container hero-grid home-hero-grid-with-robot">
         <div class="hero-copy">
             <span class="eyebrow">APRENDIZAJE ACTIVO DE PROGRAMACIÓN 1</span>
-            <h1>Practicá, comprendé<br /><span>y medí tu progreso.</span></h1>
-            <p>EduCode reúne ejercicios progresivos, evaluación automática, un Tutor IA contextual y herramientas de seguimiento para que avances en JavaScript sin recibir soluciones prefabricadas.</p>
+            <h1>EduCode: Practicá, comprendé<br /><span>y medí tu progreso.</span></h1>
+            <p>Diseñada y desarrollada por <strong>Leonardo Paroli de los Santos</strong> a partir de su experiencia en <strong>ayudantías ORT</strong>, esta plataforma reúne ejercicios, evaluación automática y un Tutor IA para que avances en JavaScript sin recibir soluciones prefabricadas.</p>
             <div class="hero-actions">
                 @if (usuarioAutenticado)
                 {
@@ -90,7 +91,7 @@
                 <div><span>2</span><p><strong>Identidad cuidada.</strong> El nombre de usuario es único y sus cambios están limitados para evitar confusiones o suplantaciones.</p></div>
                 <div><span>3</span><p><strong>Escucha activa.</strong> Las opiniones quedan registradas con categoría, calificación y estado de revisión.</p></div>
             </div>
-            <a class="text-link" asp-controller="Home" asp-action="AcercaDe">Conocer el origen y propósito del proyecto →</a>
+            <a class="text-link" asp-controller="Home" asp-action="AcercaDe">Conoce a Leonardo Paroli y el propósito académico de EduCode →</a>
         </div>
         <div class="home-product-card" aria-label="Resumen de herramientas disponibles">
             <div class="home-product-header">
